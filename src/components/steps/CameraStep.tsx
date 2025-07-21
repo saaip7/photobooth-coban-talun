@@ -5,7 +5,6 @@ import { Camera, RotateCcw, ArrowRight } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useTimer } from "react-timer-hook"
 import Webcam from "react-webcam"
-import Image from "next/image"
 
 const TIMER = 4000 // 4 seconds countdown
 
@@ -29,6 +28,7 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([])
   const [started, setStarted] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+  const [cameraReady, setCameraReady] = useState(false)
   const webcamRef = useRef<Webcam | null>(null)
 
   const time = new Date(new Date().getTime() + TIMER)
@@ -56,9 +56,11 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
   const handleStartCapture = () => {
     if (!started) {
       setStarted(true)
-      start()
+      const newTime = new Date(new Date().getTime() + TIMER)
+      restart(newTime)
     } else if (capturedPhotos.length < 3) {
-      restart(new Date(new Date().getTime() + TIMER))
+      const newTime = new Date(new Date().getTime() + TIMER)
+      restart(newTime)
     }
   }
 
@@ -118,9 +120,9 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
       <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
         <div className="relative mx-auto overflow-hidden rounded-xl" 
              style={{ 
-               width: '300px', 
-               height: '533px', // 300 * (16/9) = 533px for 9:16 aspect ratio
-               maxWidth: '90vw'
+               width: '100%', 
+               maxWidth: '400px',
+               aspectRatio: '4/3', // Standard camera aspect ratio (horizontal)
              }}>
           
           {/* Webcam */}
@@ -130,21 +132,37 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
             mirrored={true}
             screenshotFormat="image/jpeg"
             className="w-full h-full object-cover"
+            onUserMedia={() => setCameraReady(true)}
+            onUserMediaError={(error) => {
+              console.error('Camera error:', error)
+              setCameraReady(false)
+            }}
             videoConstraints={{
-              width: 1080,
-              height: 1920,
+              width: 1280,
+              height: 720,
               facingMode: "user"
             }}
           />
           
-          {/* Timer Overlay */}
-          {isRunning && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+          {/* Camera Loading */}
+          {!cameraReady && (
+            <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-20">
               <div className="text-center text-white">
-                <div className="text-6xl font-bold mb-2">
+                <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-lg font-medium">Menyalakan kamera...</div>
+                <div className="text-sm opacity-75 mt-1">Pastikan izin kamera sudah diberikan</div>
+              </div>
+            </div>
+          )}
+          
+          {/* Timer Overlay - Semi-transparent so user can see camera */}
+          {isRunning && cameraReady && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+              <div className="bg-black/40 rounded-2xl p-6 text-center text-white">
+                <div className="text-7xl font-bold mb-3 drop-shadow-lg">
                   {totalSeconds === 4 ? "📸" : totalSeconds}
                 </div>
-                <div className="text-xl">
+                <div className="text-2xl font-semibold drop-shadow-md">
                   {getCountdownMessage()}
                 </div>
               </div>
@@ -152,7 +170,7 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
           )}
 
           {/* Completion Message */}
-          {!isRunning && capturedPhotos.length >= 3 && (
+          {!isRunning && capturedPhotos.length >= 3 && cameraReady && (
             <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10">
               <div className="text-center text-white">
                 <div className="text-4xl mb-4">🎉</div>
@@ -174,11 +192,11 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
           <h3 className="text-lg font-semibold text-center mb-4 text-[#3E3E3E]">
             📷 Foto yang Tersimpan
           </h3>
-          <div className="flex justify-center gap-3 overflow-x-auto pb-2">
+          <div className="flex justify-center gap-3 overflow-x-auto py-2">
             {capturedPhotos.map((photo, index) => (
               <div
                 key={index}
-                className={`relative flex-shrink-0 w-16 h-28 rounded-lg overflow-hidden border-2 transition-all ${
+                className={`relative flex-shrink-0 w-24 h-18 rounded-md overflow-hidden border-2 transition-all ${
                   index === currentPhotoIndex 
                     ? 'border-[#74A57F] shadow-lg scale-105' 
                     : 'border-gray-200'
@@ -200,7 +218,7 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
             {Array.from({ length: 3 - capturedPhotos.length }).map((_, index) => (
               <div
                 key={index + capturedPhotos.length}
-                className="flex-shrink-0 w-16 h-28 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
+                className="flex-shrink-0 w-24 h-18 rounded-md border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
               >
                 <Camera className="w-6 h-6 text-gray-400" />
               </div>
@@ -215,15 +233,17 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
         {capturedPhotos.length < 3 && (
           <Button
             onClick={handleStartCapture}
-            disabled={isRunning}
+            disabled={isRunning || !cameraReady}
             className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-2xl py-6 text-xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center"
           >
             <Camera className="w-6 h-6 mr-3" />
-            {!started 
-              ? "Mulai Foto 📸"
-              : capturedPhotos.length === 0 
-                ? "Ambil Foto Pertama"
-                : `Ambil Foto ${capturedPhotos.length + 1}`
+            {!cameraReady 
+              ? "Menunggu kamera..."
+              : !started 
+                ? "Mulai Foto 📸"
+                : capturedPhotos.length === 0 
+                  ? "Ambil Foto Pertama"
+                  : `Ambil Foto ${capturedPhotos.length + 1}`
             }
           </Button>
         )}
@@ -256,6 +276,11 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
         <p>🎯 Pastikan wajah terlihat jelas di dalam frame</p>
         <p>⏱️ Setiap foto akan diambil otomatis setelah hitungan mundur</p>
         <p>🔄 Bisa diulangi kapan saja jika tidak puas</p>
+        {!cameraReady && (
+          <p className="text-orange-600 font-medium">
+            📷 Jika kamera tidak muncul, pastikan izin kamera sudah diberikan
+          </p>
+        )}
       </div>
     </div>
   )
