@@ -22,14 +22,26 @@ const CAMERA_MESSAGES = [
 interface CameraStepProps {
   onPhotosCapture: (photos: string[]) => void
   onNext: () => void
+  selectedTemplate: number | null
 }
 
-export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps) {
+export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }: CameraStepProps) {
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([])
   const [started, setStarted] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [cameraReady, setCameraReady] = useState(false)
   const webcamRef = useRef<Webcam | null>(null)
+
+  // Get max photos based on selected template
+  const getMaxPhotos = () => {
+    switch (selectedTemplate) {
+      case 1: return 3 // 3 Slot Template
+      case 2: return 2 // 2 Slot Template
+      default: return 3 // Default fallback
+    }
+  }
+
+  const maxPhotos = getMaxPhotos()
 
   const time = new Date(new Date().getTime() + TIMER)
   
@@ -58,7 +70,7 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
       setStarted(true)
       const newTime = new Date(new Date().getTime() + TIMER)
       restart(newTime)
-    } else if (capturedPhotos.length < 3) {
+    } else if (capturedPhotos.length < maxPhotos) {
       const newTime = new Date(new Date().getTime() + TIMER)
       restart(newTime)
     }
@@ -79,18 +91,19 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
 
   // Auto-restart timer for next photo
   useEffect(() => {
-    if (started && capturedPhotos.length < 3 && capturedPhotos.length > 0) {
+    if (started && capturedPhotos.length < maxPhotos && capturedPhotos.length > 0) {
       setTimeout(() => {
         restart(new Date(new Date().getTime() + TIMER))
       }, 1000) // 1 second delay between photos
     }
-  }, [capturedPhotos.length, restart, started])
+  }, [capturedPhotos.length, restart, started, maxPhotos])
 
   const getCountdownMessage = () => {
     if (totalSeconds === 4) {
       if (capturedPhotos.length === 0) return "Siap? 📸"
-      if (capturedPhotos.length === 1) return "Foto kedua! 🤳"
-      if (capturedPhotos.length === 2) return "Foto terakhir! ✨"
+      if (maxPhotos === 2 && capturedPhotos.length === 1) return "Foto terakhir! ✨"
+      if (maxPhotos === 3 && capturedPhotos.length === 1) return "Foto kedua! 🤳"
+      if (maxPhotos === 3 && capturedPhotos.length === 2) return "Foto terakhir! ✨"
     }
     return totalSeconds
   }
@@ -107,11 +120,11 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
           📸 Camera Photobooth
         </h2>
         <p className="text-gray-600">
-          Ambil foto langsung dengan kamera • Maksimal 3 foto
+          Ambil foto langsung dengan kamera • Maksimal {maxPhotos} foto
         </p>
         {capturedPhotos.length > 0 && (
           <div className="mt-2 text-sm text-[#74A57F] font-medium">
-            {capturedPhotos.length}/3 foto tersimpan ✅
+            {capturedPhotos.length}/{maxPhotos} foto tersimpan ✅
           </div>
         )}
       </div>
@@ -170,7 +183,7 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
           )}
 
           {/* Completion Message */}
-          {!isRunning && capturedPhotos.length >= 3 && cameraReady && (
+          {!isRunning && capturedPhotos.length >= maxPhotos && cameraReady && (
             <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10">
               <div className="text-center text-white">
                 <div className="text-4xl mb-4">🎉</div>
@@ -215,7 +228,7 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
             ))}
             
             {/* Empty slots */}
-            {Array.from({ length: 3 - capturedPhotos.length }).map((_, index) => (
+            {Array.from({ length: maxPhotos - capturedPhotos.length }).map((_, index) => (
               <div
                 key={index + capturedPhotos.length}
                 className="flex-shrink-0 w-24 h-18 rounded-md border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
@@ -230,7 +243,7 @@ export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps)
       {/* Control Buttons */}
       <div className="space-y-4">
         {/* Primary Action */}
-        {capturedPhotos.length < 3 && (
+        {capturedPhotos.length < maxPhotos && (
           <Button
             onClick={handleStartCapture}
             disabled={isRunning || !cameraReady}

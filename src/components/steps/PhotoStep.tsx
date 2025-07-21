@@ -173,6 +173,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
   if (photoMode === "live-booth") {
     return (
       <CameraStep 
+        selectedTemplate={selectedTemplate}
         onPhotosCapture={handleLivePhotosCapture}
         onNext={handleLiveCameraComplete}
       />
