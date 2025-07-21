@@ -23,26 +23,31 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
         {/* Description */}
         <div className="mb-8 space-y-4">
           <p className="text-lg text-white/90">
-            Abadikan momen indah kamu di Coban Talun dengan template frame yang keren!
+            Buat story Instagram yang keren dengan template photobooth Coban Talun!
           </p>
+          <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
+            <p className="text-sm text-white/80">
+              📱 Format Story Perfect • 1080x1920 • Siap untuk IG Stories, WhatsApp Status & TikTok
+            </p>
+          </div>
           
           {/* Features */}
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div className="flex items-center space-x-2 text-white/80">
               <Heart className="w-5 h-5" />
-              <span className="text-sm">Template Keren</span>
+              <span className="text-sm">Story Format</span>
             </div>
             <div className="flex items-center space-x-2 text-white/80">
               <Camera className="w-5 h-5" />
-              <span className="text-sm">Kualitas HD</span>
+              <span className="text-sm">HD Quality</span>
             </div>
             <div className="flex items-center space-x-2 text-white/80">
               <Star className="w-5 h-5" />
-              <span className="text-sm">Mudah Digunakan</span>
+              <span className="text-sm">Instant Share</span>
             </div>
             <div className="flex items-center space-x-2 text-white/80">
               <Users className="w-5 h-5" />
-              <span className="text-sm">Solo & Group</span>
+              <span className="text-sm">Social Ready</span>
             </div>
           </div>
         </div>
@@ -57,7 +62,7 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
         </Button>
 
         <p className="mt-4 text-sm text-white/70">
-          Gratis • Tanpa Login • Instant Download
+          Gratis • Story Format • Instant Download • Social Media Ready
         </p>
       </div>
     </div>

@@ -1,0 +1,65 @@
+<!-- Mobile Portrait Template for 3 Vertical Slots (1080x1920 - Instagram Story Size) -->
+<svg width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#74A57F;stop-opacity:0.1" />
+      <stop offset="50%" style="stop-color:#74A57F;stop-opacity:0.05" />
+      <stop offset="100%" style="stop-color:#74A57F;stop-opacity:0.1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1080" height="1920" fill="url(#bgGradient)"/>
+  
+  <!-- Top Header -->
+  <rect x="0" y="0" width="1080" height="180" fill="#74A57F"/>
+  
+  <!-- Main Title -->
+  <text x="540" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white">
+    Photobooth
+  </text>
+  <text x="540" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="white">
+    Coban Talun
+  </text>
+  
+  <!-- Photo Slots with Decorative Frames -->
+  
+  <!-- Slot 1 - Top -->
+  <rect x="120" y="280" width="840" height="440" rx="20" fill="white" filter="url(#shadow)"/>
+  <rect x="140" y="300" width="800" height="400" rx="15" fill="#f8f9fa" stroke="#dee2e6" stroke-width="3" stroke-dasharray="10,5"/>
+  <text x="540" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#6c757d" font-weight="500">Foto Pertama</text>
+  
+  <!-- Slot 2 - Middle -->
+  <rect x="120" y="740" width="840" height="440" rx="20" fill="white" filter="url(#shadow)"/>
+  <rect x="140" y="760" width="800" height="400" rx="15" fill="#f8f9fa" stroke="#dee2e6" stroke-width="3" stroke-dasharray="10,5"/>
+  <text x="540" y="970" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#6c757d" font-weight="500">Foto Kedua</text>
+  
+  <!-- Slot 3 - Bottom -->
+  <rect x="120" y="1200" width="840" height="440" rx="20" fill="white" filter="url(#shadow)"/>
+  <rect x="140" y="1220" width="800" height="400" rx="15" fill="#f8f9fa" stroke="#dee2e6" stroke-width="3" stroke-dasharray="10,5"/>
+  <text x="540" y="1430" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#6c757d" font-weight="500">Foto Ketiga</text>
+  
+  <!-- Decorative Elements -->
+  <circle cx="100" cy="250" r="15" fill="#74A57F" opacity="0.3"/>
+  <circle cx="980" cy="250" r="15" fill="#74A57F" opacity="0.3"/>
+  <circle cx="100" cy="710" r="15" fill="#74A57F" opacity="0.3"/>
+  <circle cx="980" cy="710" r="15" fill="#74A57F" opacity="0.3"/>
+  <circle cx="100" cy="1170" r="15" fill="#74A57F" opacity="0.3"/>
+  <circle cx="980" cy="1170" r="15" fill="#74A57F" opacity="0.3"/>
+  
+  <!-- Bottom Footer -->
+  <rect x="0" y="1720" width="1080" height="200" fill="#74A57F"/>
+  <text x="540" y="1780" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="white" font-weight="600">
+    Kenangan Indah dari
+  </text>
+  <text x="540" y="1830" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" fill="white" font-weight="bold">
+    Coban Talun
+  </text>
+  <text x="540" y="1870" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="white" opacity="0.8">
+    #CobanTalun #PhotoboothMemories
+  </text>
+</svg>

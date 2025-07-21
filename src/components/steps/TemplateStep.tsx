@@ -19,11 +19,14 @@ export default function TemplateStep({
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-[#3E3E3E] mb-2">
-          Pilih Template Favoritmu
+          Pilih Template Story
         </h2>
         <p className="text-gray-600">
-          Pilih frame yang cocok untuk momen spesialmu
+          Template optimized untuk Instagram Story & Social Media
         </p>
+        <div className="mt-2 text-sm text-[#74A57F] font-medium">
+          📱 Format: 1080x1920 (9:16) • Perfect for Stories!
+        </div>
       </div>
 
       <div className="grid gap-4">
@@ -56,9 +59,8 @@ export default function TemplateStep({
                   {template.title}
                 </h3>
                 <p className="text-gray-500 text-sm mt-1">
-                  {template.id === 1 && "Perfect untuk foto grup bersama"}
-                  {template.id === 2 && "Ideal untuk foto couple vertikal"}
-                  {template.id === 3 && "Fokus pada satu momen spesial"}
+                  {template.id === 1 && "Perfect untuk 3 momen spesial - Instagram Story ready!"}
+                  {template.id === 2 && "Ideal untuk couple atau duo memories - Story format!"}
                 </p>
                 
                 {selectedTemplate === template.id && (
@@ -78,7 +80,7 @@ export default function TemplateStep({
           <div className="flex items-center text-green-700">
             <Check className="w-5 h-5 mr-2" />
             <span className="font-medium">
-              Template "{templates.find(t => t.id === selectedTemplate)?.title}" terpilih!
+              Template &quot;{templates.find(t => t.id === selectedTemplate)?.title}&quot; terpilih!
             </span>
           </div>
         </div>

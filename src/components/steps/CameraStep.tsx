@@ -1,0 +1,262 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Camera, RotateCcw, ArrowRight } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { useTimer } from "react-timer-hook"
+import Webcam from "react-webcam"
+import Image from "next/image"
+
+const TIMER = 4000 // 4 seconds countdown
+
+const CAMERA_MESSAGES = [
+  "Kamu keren banget! 📸",
+  "Perfect shot! ✨",
+  "Pose bagus! 🌟",
+  "Mantap! 🔥",
+  "Amazing! 💫",
+  "Kece abis! 🎯",
+  "Foto terbaik! 🏆",
+  "Stunning! 💝"
+]
+
+interface CameraStepProps {
+  onPhotosCapture: (photos: string[]) => void
+  onNext: () => void
+}
+
+export default function CameraStep({ onPhotosCapture, onNext }: CameraStepProps) {
+  const [capturedPhotos, setCapturedPhotos] = useState<string[]>([])
+  const [started, setStarted] = useState(false)
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+  const webcamRef = useRef<Webcam | null>(null)
+
+  const time = new Date(new Date().getTime() + TIMER)
+  
+  const { totalSeconds, start, restart, isRunning } = useTimer({
+    interval: 1000,
+    onExpire: () => {
+      // Capture photo when timer expires
+      if (webcamRef.current) {
+        const imageSrc = webcamRef.current.getScreenshot()
+        if (imageSrc) {
+          const newPhotos = [...capturedPhotos, imageSrc]
+          setCapturedPhotos(newPhotos)
+          setCurrentPhotoIndex(newPhotos.length - 1)
+          
+          // Auto-trigger onPhotosCapture for live preview
+          onPhotosCapture(newPhotos)
+        }
+      }
+    },
+    expiryTimestamp: time,
+    autoStart: false,
+  })
+
+  const handleStartCapture = () => {
+    if (!started) {
+      setStarted(true)
+      start()
+    } else if (capturedPhotos.length < 3) {
+      restart(new Date(new Date().getTime() + TIMER))
+    }
+  }
+
+  const handleRetake = () => {
+    setCapturedPhotos([])
+    setCurrentPhotoIndex(0)
+    setStarted(false)
+    onPhotosCapture([]) // Reset photos in parent
+  }
+
+  const handleContinue = () => {
+    if (capturedPhotos.length > 0) {
+      onNext()
+    }
+  }
+
+  // Auto-restart timer for next photo
+  useEffect(() => {
+    if (started && capturedPhotos.length < 3 && capturedPhotos.length > 0) {
+      setTimeout(() => {
+        restart(new Date(new Date().getTime() + TIMER))
+      }, 1000) // 1 second delay between photos
+    }
+  }, [capturedPhotos.length, restart, started])
+
+  const getCountdownMessage = () => {
+    if (totalSeconds === 4) {
+      if (capturedPhotos.length === 0) return "Siap? 📸"
+      if (capturedPhotos.length === 1) return "Foto kedua! 🤳"
+      if (capturedPhotos.length === 2) return "Foto terakhir! ✨"
+    }
+    return totalSeconds
+  }
+
+  const getCompletionMessage = () => {
+    return CAMERA_MESSAGES[Math.floor(Math.random() * CAMERA_MESSAGES.length)]
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-[#3E3E3E] mb-2">
+          📸 Camera Photobooth
+        </h2>
+        <p className="text-gray-600">
+          Ambil foto langsung dengan kamera • Maksimal 3 foto
+        </p>
+        {capturedPhotos.length > 0 && (
+          <div className="mt-2 text-sm text-[#74A57F] font-medium">
+            {capturedPhotos.length}/3 foto tersimpan ✅
+          </div>
+        )}
+      </div>
+
+      {/* Camera Preview */}
+      <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
+        <div className="relative mx-auto overflow-hidden rounded-xl" 
+             style={{ 
+               width: '300px', 
+               height: '533px', // 300 * (16/9) = 533px for 9:16 aspect ratio
+               maxWidth: '90vw'
+             }}>
+          
+          {/* Webcam */}
+          <Webcam
+            ref={webcamRef}
+            audio={false}
+            mirrored={true}
+            screenshotFormat="image/jpeg"
+            className="w-full h-full object-cover"
+            videoConstraints={{
+              width: 1080,
+              height: 1920,
+              facingMode: "user"
+            }}
+          />
+          
+          {/* Timer Overlay */}
+          {isRunning && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+              <div className="text-center text-white">
+                <div className="text-6xl font-bold mb-2">
+                  {totalSeconds === 4 ? "📸" : totalSeconds}
+                </div>
+                <div className="text-xl">
+                  {getCountdownMessage()}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Completion Message */}
+          {!isRunning && capturedPhotos.length >= 3 && (
+            <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10">
+              <div className="text-center text-white">
+                <div className="text-4xl mb-4">🎉</div>
+                <div className="text-xl font-medium">
+                  {getCompletionMessage()}
+                </div>
+                <div className="text-sm mt-2 opacity-80">
+                  Semua foto sudah siap!
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Captured Photos Preview */}
+      {capturedPhotos.length > 0 && (
+        <div className="bg-white rounded-2xl p-4 shadow-lg">
+          <h3 className="text-lg font-semibold text-center mb-4 text-[#3E3E3E]">
+            📷 Foto yang Tersimpan
+          </h3>
+          <div className="flex justify-center gap-3 overflow-x-auto pb-2">
+            {capturedPhotos.map((photo, index) => (
+              <div
+                key={index}
+                className={`relative flex-shrink-0 w-16 h-28 rounded-lg overflow-hidden border-2 transition-all ${
+                  index === currentPhotoIndex 
+                    ? 'border-[#74A57F] shadow-lg scale-105' 
+                    : 'border-gray-200'
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo}
+                  alt={`Foto ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-1 left-1 bg-[#74A57F] text-white text-xs px-1.5 py-0.5 rounded-full">
+                  {index + 1}
+                </div>
+              </div>
+            ))}
+            
+            {/* Empty slots */}
+            {Array.from({ length: 3 - capturedPhotos.length }).map((_, index) => (
+              <div
+                key={index + capturedPhotos.length}
+                className="flex-shrink-0 w-16 h-28 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
+              >
+                <Camera className="w-6 h-6 text-gray-400" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Control Buttons */}
+      <div className="space-y-4">
+        {/* Primary Action */}
+        {capturedPhotos.length < 3 && (
+          <Button
+            onClick={handleStartCapture}
+            disabled={isRunning}
+            className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-2xl py-6 text-xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center"
+          >
+            <Camera className="w-6 h-6 mr-3" />
+            {!started 
+              ? "Mulai Foto 📸"
+              : capturedPhotos.length === 0 
+                ? "Ambil Foto Pertama"
+                : `Ambil Foto ${capturedPhotos.length + 1}`
+            }
+          </Button>
+        )}
+
+        {/* Navigation Buttons */}
+        {capturedPhotos.length > 0 && (
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              onClick={handleRetake}
+              variant="outline"
+              className="border-red-400 text-red-600 hover:bg-red-50 rounded-2xl py-4 text-lg font-semibold transition-all duration-200 flex items-center justify-center"
+            >
+              <RotateCcw className="w-5 h-5 mr-2" />
+              Ulangi
+            </Button>
+
+            <Button
+              onClick={handleContinue}
+              className="bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl py-4 text-lg font-semibold transition-all duration-200 flex items-center justify-center"
+            >
+              Lanjut
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Instructions */}
+      <div className="text-center text-sm text-gray-500 space-y-2">
+        <p>🎯 Pastikan wajah terlihat jelas di dalam frame</p>
+        <p>⏱️ Setiap foto akan diambil otomatis setelah hitungan mundur</p>
+        <p>🔄 Bisa diulangi kapan saja jika tidak puas</p>
+      </div>
+    </div>
+  )
+}

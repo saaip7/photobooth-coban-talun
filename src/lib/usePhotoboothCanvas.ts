@@ -15,7 +15,7 @@ export const usePhotboothCanvas = (
   const [isGenerating, setIsGenerating] = useState(false)
   const [previewReady, setPreviewReady] = useState(false)
 
-  // Initialize canvas when template changes
+  // Create canvas with proper display size from the start
   useEffect(() => {
     if (selectedTemplate && canvasRef.current) {
       initializeCanvas()
@@ -32,7 +32,7 @@ export const usePhotboothCanvas = (
       clearPhotosFromCanvas()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fabricCanvas, uploadedPhotos])
+  }, [uploadedPhotos])
 
   const initializeCanvas = async () => {
     if (!selectedTemplate || !canvasRef.current) return
@@ -41,22 +41,61 @@ export const usePhotboothCanvas = (
       setIsGenerating(true)
       setPreviewReady(false)
       
-      // Dispose existing canvas
+      // Dispose existing canvas safely
       if (fabricCanvas) {
-        fabricCanvas.dispose()
+        try {
+          fabricCanvas.dispose()
+        } catch (error) {
+          console.warn('Canvas disposal warning:', error)
+        }
+        setFabricCanvas(null)
       }
 
-      // Create new canvas with template
-      const newCanvas = await createCanvasWithTemplate(canvasRef.current, selectedTemplate)
-      setFabricCanvas(newCanvas)
-      
-      // Add photos if available
-      if (uploadedPhotos.length > 0) {
-        await addPhotosToCanvas(newCanvas, selectedTemplate, uploadedPhotos)
+      // Wait a bit before creating new canvas to avoid DOM conflicts
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Create canvas with proper display size from the start
+      if (canvasRef.current) {
+        const config = TEMPLATE_CONFIGS[selectedTemplate as keyof typeof TEMPLATE_CONFIGS]
+        if (!config) {
+          console.error('Template config not found:', selectedTemplate)
+          return
+        }
+
+        // Calculate responsive display size
+        const containerWidth = window.innerWidth > 768 ? 320 : Math.min(window.innerWidth - 80, 240) // Responsive width
+        const aspectRatio = config.canvasHeight / config.canvasWidth
+        const displayHeight = containerWidth * aspectRatio
+
+        // Set canvas element size BEFORE creating fabric canvas
+        canvasRef.current.style.width = containerWidth + 'px'
+        canvasRef.current.style.height = displayHeight + 'px'
+        canvasRef.current.style.maxWidth = '100%'
+
+        // Add timeout to prevent infinite loading
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Canvas initialization timeout')), 15000)
+        })
+
+        const canvasPromise = createCanvasWithTemplate(canvasRef.current, selectedTemplate)
+
+        const newCanvas = await Promise.race([canvasPromise, timeoutPromise]) as fabric.Canvas
+        setFabricCanvas(newCanvas)
+        
+        // Add photos if available
+        if (uploadedPhotos.length > 0) {
+          try {
+            await addPhotosToCanvas(newCanvas, selectedTemplate, uploadedPhotos)
+          } catch (error) {
+            console.error('Error adding photos:', error)
+          }
+        }
+        
         setPreviewReady(true)
       }
     } catch (error) {
       console.error('Failed to initialize canvas:', error)
+      setPreviewReady(false)
     } finally {
       setIsGenerating(false)
     }
@@ -67,10 +106,19 @@ export const usePhotboothCanvas = (
 
     try {
       setIsGenerating(true)
-      await addPhotosToCanvas(fabricCanvas, selectedTemplate, uploadedPhotos)
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Photo update timeout')), 10000)
+      })
+
+      const updatePromise = addPhotosToCanvas(fabricCanvas, selectedTemplate, uploadedPhotos)
+      
+      await Promise.race([updatePromise, timeoutPromise])
       setPreviewReady(uploadedPhotos.length > 0)
     } catch (error) {
       console.error('Failed to update canvas with photos:', error)
+      setPreviewReady(false)
     } finally {
       setIsGenerating(false)
     }
@@ -107,10 +155,14 @@ export const usePhotboothCanvas = (
   useEffect(() => {
     return () => {
       if (fabricCanvas) {
-        fabricCanvas.dispose()
+        try {
+          fabricCanvas.dispose()
+        } catch (error) {
+          console.warn('Canvas cleanup warning:', error)
+        }
       }
     }
-  }, [])
+  }, [fabricCanvas])
 
   return {
     canvasRef,

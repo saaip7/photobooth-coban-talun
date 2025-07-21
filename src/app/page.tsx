@@ -5,7 +5,7 @@ import AppNavigation from "@/components/AppNavigation"
 import WelcomeStep from "@/components/steps/WelcomeStep"
 import TemplateStep from "@/components/steps/TemplateStep"
 import PhotoStep from "@/components/steps/PhotoStep"
-import PreviewStep from "@/components/steps/PreviewStep"
+import PreviewStep from "@/components/steps/PreviewStepNew"
 
 export type Template = {
   id: number
@@ -16,18 +16,13 @@ export type Template = {
 const templates: Template[] = [
   {
     id: 1,
-    title: "3 Slot Horizontal",
-    preview: "/templates/3grid.svg",
+    title: "3 Slot Vertikal",
+    preview: "/templates/3slot-vertical.svg",
   },
   {
     id: 2,
-    title: "2 Slot Vertikal",
-    preview: "/templates/2grid-vertical.svg",
-  },
-  {
-    id: 3,
-    title: "Single Frame",
-    preview: "/templates/single-frame.svg",
+    title: "2 Slot Vertikal", 
+    preview: "/templates/2slot-vertical.svg",
   },
 ]
 

@@ -1,9 +1,10 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Camera, ImageIcon, X, RefreshCw, Eye } from "lucide-react"
+import { Camera, ImageIcon, X, RefreshCw, Eye, Timer, Upload } from "lucide-react"
 import { useState, useRef, useCallback, useEffect } from "react"
 import { getUserMediaStream, capturePhotoFromStream } from "@/lib/canvasUtils"
+import CameraStep from "./CameraStep"
 import type React from "react"
 
 interface PhotoStepProps {
@@ -17,6 +18,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
   const [stream, setStream] = useState<MediaStream | null>(null)
   const [isVideoReady, setIsVideoReady] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
+  const [photoMode, setPhotoMode] = useState<'select' | 'upload' | 'camera' | 'live-booth'>("select")
   const videoRef = useRef<HTMLVideoElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const currentPlayPromise = useRef<Promise<void> | null>(null)
@@ -25,11 +27,9 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
   const getTemplateInfo = () => {
     switch (selectedTemplate) {
       case 1:
-        return { name: "3 Slot Horizontal", maxPhotos: 3, description: "Siapkan 3 foto untuk template horizontal" }
+        return { name: "3 Slot Vertikal", maxPhotos: 3, description: "Siapkan 3 foto untuk story template vertikal" }
       case 2:
-        return { name: "2 Slot Vertikal", maxPhotos: 2, description: "Siapkan 2 foto untuk template vertikal" }
-      case 3:
-        return { name: "Single Frame", maxPhotos: 1, description: "Siapkan 1 foto untuk template tunggal" }
+        return { name: "2 Slot Vertikal", maxPhotos: 2, description: "Siapkan 2 foto untuk duo story template" }
       default:
         return { name: "Unknown", maxPhotos: 3, description: "Pilih template terlebih dahulu" }
     }
@@ -160,6 +160,25 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
     }
   }, [stream])
 
+  // Handle live camera photos capture
+  const handleLivePhotosCapture = (photos: string[]) => {
+    setUploadedPhotos(photos.slice(0, templateInfo.maxPhotos))
+  }
+
+  const handleLiveCameraComplete = () => {
+    setPhotoMode("select")
+  }
+
+  // If live photobooth mode is selected, render the camera component
+  if (photoMode === "live-booth") {
+    return (
+      <CameraStep 
+        onPhotosCapture={handleLivePhotosCapture}
+        onNext={handleLiveCameraComplete}
+      />
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -170,19 +189,75 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
         <p className="text-gray-600">{templateInfo.description}</p>
       </div>
 
-      {/* Progress */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Progress Foto</span>
-          <span className="text-sm text-gray-500">{uploadedPhotos.length}/{templateInfo.maxPhotos}</span>
+      {/* Mode Selection */}
+      {photoMode === "select" && uploadedPhotos.length === 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-center text-[#3E3E3E] mb-4">
+            Pilih cara mengambil foto:
+          </h3>
+          
+          <div className="grid gap-4">
+            {/* Live Photobooth Mode */}
+            <button
+              onClick={() => setPhotoMode("live-booth")}
+              className="bg-gradient-to-r from-[#74A57F] to-[#5d8a68] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
+            >
+              <div className="flex items-center justify-center mb-3">
+                <Timer className="w-8 h-8 mr-2" />
+                <Camera className="w-8 h-8" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">🎬 Live Photobooth</h4>
+              <p className="text-sm opacity-90">Timer otomatis, seperti photobooth sungguhan!</p>
+              <p className="text-xs mt-1 opacity-75">Hitungan mundur & capture otomatis</p>
+            </button>
+
+            {/* Upload from Gallery */}
+            <button
+              onClick={() => setPhotoMode("upload")}
+              className="bg-white border-2 border-[#74A57F] text-[#74A57F] rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:bg-[#74A57F] hover:text-white"
+            >
+              <Upload className="w-8 h-8 mx-auto mb-3" />
+              <h4 className="font-bold text-lg mb-2">📱 Upload dari Galeri</h4>
+              <p className="text-sm opacity-75">Pilih foto yang sudah ada di galeri</p>
+            </button>
+
+            {/* Manual Camera */}
+            <button
+              onClick={() => setPhotoMode("camera")}
+              className="bg-white border-2 border-gray-300 text-gray-700 rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:border-[#74A57F] hover:text-[#74A57F]"
+            >
+              <Camera className="w-8 h-8 mx-auto mb-3" />
+              <h4 className="font-bold text-lg mb-2">📸 Kamera Manual</h4>
+              <p className="text-sm opacity-75">Ambil foto satu per satu secara manual</p>
+            </button>
+          </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-[#74A57F] h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(uploadedPhotos.length / templateInfo.maxPhotos) * 100}%` }}
-          />
+      )}
+
+      {/* Progress - show when in upload/camera mode or when photos exist */}
+      {(photoMode !== "select" || uploadedPhotos.length > 0) && (
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">Progress Foto</span>
+            <span className="text-sm text-gray-500">{uploadedPhotos.length}/{templateInfo.maxPhotos}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-[#74A57F] h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(uploadedPhotos.length / templateInfo.maxPhotos) * 100}%` }}
+            />
+          </div>
+          
+          {photoMode !== "select" && (
+            <button
+              onClick={() => setPhotoMode("select")}
+              className="mt-3 text-sm text-[#74A57F] hover:text-[#5d8a68] font-medium"
+            >
+              ← Kembali ke pilihan mode
+            </button>
+          )}
         </div>
-      </div>
+      )}
 
       {/* Camera Modal */}
       {isCameraOpen && (
@@ -229,35 +304,41 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-4">
-        <button
-          onClick={openCamera}
-          disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
-          className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg"
-        >
-          <Camera className="w-8 h-8 mx-auto mb-2" />
-          <span className="font-semibold">Ambil Foto</span>
-        </button>
+      {/* Action Buttons - only show in camera/upload mode */}
+      {(photoMode === "camera" || photoMode === "upload") && (
+        <div className="grid grid-cols-2 gap-4">
+          {photoMode === "camera" && (
+            <button
+              onClick={openCamera}
+              disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
+              className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              <Camera className="w-8 h-8 mx-auto mb-2" />
+              <span className="font-semibold">Ambil Foto</span>
+            </button>
+          )}
 
-        <label className={`cursor-pointer ${uploadedPhotos.length >= templateInfo.maxPhotos ? 'cursor-not-allowed' : ''}`}>
-          <input 
-            ref={fileInputRef}
-            type="file" 
-            accept="image/*" 
-            multiple 
-            onChange={handlePhotoUpload} 
-            className="hidden"
-            disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
-          />
-          <div className={`bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
-            uploadedPhotos.length >= templateInfo.maxPhotos ? 'bg-gray-300 hover:bg-gray-300' : ''
-          }`}>
-            <ImageIcon className="w-8 h-8 mx-auto mb-2" />
-            <span className="font-semibold">Pilih dari Galeri</span>
-          </div>
-        </label>
-      </div>
+          {photoMode === "upload" && (
+            <label className={`cursor-pointer ${uploadedPhotos.length >= templateInfo.maxPhotos ? 'cursor-not-allowed' : ''}`}>
+              <input 
+                ref={fileInputRef}
+                type="file" 
+                accept="image/*" 
+                multiple 
+                onChange={handlePhotoUpload} 
+                className="hidden"
+                disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
+              />
+              <div className={`bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
+                uploadedPhotos.length >= templateInfo.maxPhotos ? 'bg-gray-300 hover:bg-gray-300' : ''
+              }`}>
+                <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                <span className="font-semibold">Pilih dari Galeri</span>
+              </div>
+            </label>
+          )}
+        </div>
+      )}
 
       {/* Photo Thumbnails */}
       {uploadedPhotos.length > 0 && (

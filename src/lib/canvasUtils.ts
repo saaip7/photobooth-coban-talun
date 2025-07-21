@@ -1,36 +1,27 @@
 import { fabric } from 'fabric';
 
-// Template configurations with photo slot positions
+// Template configurations with photo slot positions (Mobile Portrait 1080x1920)
 export const TEMPLATE_CONFIGS = {
-  1: { // 3 Slot Horizontal
-    name: '3 Slot Horizontal',
-    background: '/templates/3grid.svg',
+  1: { // 3 Slot Vertical (Story Format)
+    name: '3 Slot Vertikal',
+    background: '/templates/3slot-vertical.svg',
     photoSlots: [
-      { x: 50, y: 100, width: 200, height: 150 },   // Slot 1
-      { x: 270, y: 100, width: 200, height: 150 },  // Slot 2
-      { x: 490, y: 100, width: 200, height: 150 },  // Slot 3
+      { x: 162, y: 288, width: 756, height: 422 },   // Slot 1 - Top
+      { x: 162, y: 748, width: 756, height: 422 },   // Slot 2 - Middle  
+      { x: 162, y: 1210, width: 756, height: 422 },  // Slot 3 - Bottom
     ],
-    canvasWidth: 800,
-    canvasHeight: 400,
+    canvasWidth: 1080,
+    canvasHeight: 1920,
   },
-  2: { // 2 Slot Vertikal
+  2: { // 2 Slot Vertical (Story Format)
     name: '2 Slot Vertikal',
-    background: '/templates/2grid-vertical.svg',
+    background: '/templates/2slot-vertical.svg',
     photoSlots: [
-      { x: 100, y: 50, width: 200, height: 150 },   // Slot 1
-      { x: 100, y: 220, width: 200, height: 150 },  // Slot 2
+      { x: 162, y: 384, width: 756, height: 537 },   // Slot 1 - Top
+      { x: 162, y: 998, width: 756, height: 537 },   // Slot 2 - Bottom
     ],
-    canvasWidth: 400,
-    canvasHeight: 600,
-  },
-  3: { // Single Frame
-    name: 'Single Frame',
-    background: '/templates/single-frame.svg',
-    photoSlots: [
-      { x: 100, y: 100, width: 300, height: 200 },  // Single slot
-    ],
-    canvasWidth: 500,
-    canvasHeight: 400,
+    canvasWidth: 1080,
+    canvasHeight: 1920,
   },
 };
 
@@ -39,12 +30,20 @@ export const TEMPLATE_CONFIGS = {
  */
 export const loadImage = (url: string): Promise<fabric.Image> => {
   return new Promise((resolve, reject) => {
+    // Add timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      reject(new Error('Image loading timeout'));
+    }, 10000); // 10 second timeout
+
     fabric.Image.fromURL(url, (img) => {
-      if (img) {
+      clearTimeout(timeout);
+      if (img && img.getElement()) {
         resolve(img);
       } else {
         reject(new Error('Failed to load image'));
       }
+    }, {
+      crossOrigin: 'anonymous'
     });
   });
 };
@@ -58,7 +57,7 @@ export const createCanvasWithTemplate = async (
 ): Promise<fabric.Canvas> => {
   const config = TEMPLATE_CONFIGS[templateId as keyof typeof TEMPLATE_CONFIGS];
   if (!config) {
-    throw new Error('Template not found');
+    throw new Error(`Template ${templateId} not found`);
   }
 
   const canvas = new fabric.Canvas(canvasElement, {
@@ -67,8 +66,9 @@ export const createCanvasWithTemplate = async (
     backgroundColor: '#ffffff',
   });
 
-  // Load template background
+  // Load template background SVG
   try {
+    console.log('Loading template background:', config.background);
     const templateImg = await loadImage(config.background);
     templateImg.set({
       left: 0,
@@ -79,10 +79,55 @@ export const createCanvasWithTemplate = async (
       evented: false,
     });
     canvas.add(templateImg);
+    console.log('Template background loaded successfully');
   } catch (error) {
-    console.warn('Template background not found, using white background');
+    console.error('Error loading template background:', error);
+    
+    // Fallback: Create a simple background with text if SVG fails
+    const backgroundRect = new fabric.Rect({
+      left: 0,
+      top: 0,
+      width: config.canvasWidth,
+      height: config.canvasHeight,
+      fill: '#f8f9fa',
+      selectable: false,
+      evented: false,
+    });
+    canvas.add(backgroundRect);
+
+    // Add title text as fallback
+    const titleText = new fabric.Text('Photobooth Coban Talun', {
+      left: config.canvasWidth / 2,
+      top: 120,
+      fontSize: 64,
+      fontFamily: 'Arial, sans-serif',
+      fontWeight: 'bold',
+      fill: '#343a40',
+      textAlign: 'center',
+      originX: 'center',
+      originY: 'center',
+      selectable: false,
+      evented: false,
+    });
+    canvas.add(titleText);
+
+    // Add footer text
+    const footerText = new fabric.Text('Kenangan Indah dari Coban Talun', {
+      left: config.canvasWidth / 2,
+      top: 1820,
+      fontSize: 48,
+      fontFamily: 'Arial, sans-serif',
+      fill: '#74A57F',
+      textAlign: 'center',
+      originX: 'center',
+      originY: 'center',
+      selectable: false,
+      evented: false,
+    });
+    canvas.add(footerText);
   }
 
+  canvas.renderAll();
   return canvas;
 };
 
@@ -95,7 +140,10 @@ export const addPhotosToCanvas = async (
   photos: string[]
 ): Promise<void> => {
   const config = TEMPLATE_CONFIGS[templateId as keyof typeof TEMPLATE_CONFIGS];
-  if (!config) return;
+  if (!config) {
+    console.error('Template config not found:', templateId);
+    return;
+  }
 
   // Clear existing photos (keep template background)
   const objects = canvas.getObjects();
@@ -105,22 +153,23 @@ export const addPhotosToCanvas = async (
     }
   });
 
-  // Add photos to slots
+  // Add photos to slots with better error handling
+  const photoPromises = [];
   for (let i = 0; i < Math.min(photos.length, config.photoSlots.length); i++) {
     const photo = photos[i];
     const slot = config.photoSlots[i];
 
-    try {
-      const photoImg = await loadImage(photo);
-      
+    const photoPromise = loadImage(photo).then((photoImg) => {
       // Calculate scale to fit slot while maintaining aspect ratio
-      const scaleX = slot.width / (photoImg.width || 1);
-      const scaleY = slot.height / (photoImg.height || 1);
+      const imgWidth = photoImg.width || 1;
+      const imgHeight = photoImg.height || 1;
+      const scaleX = slot.width / imgWidth;
+      const scaleY = slot.height / imgHeight;
       const scale = Math.min(scaleX, scaleY);
 
       // Center the photo in the slot
-      const scaledWidth = (photoImg.width || 0) * scale;
-      const scaledHeight = (photoImg.height || 0) * scale;
+      const scaledWidth = imgWidth * scale;
+      const scaledHeight = imgHeight * scale;
       const centerX = slot.x + (slot.width - scaledWidth) / 2;
       const centerY = slot.y + (slot.height - scaledHeight) / 2;
 
@@ -133,13 +182,30 @@ export const addPhotosToCanvas = async (
         evented: false,
       });
 
-      canvas.add(photoImg);
-    } catch (error) {
+      return photoImg;
+    }).catch((error) => {
       console.error(`Failed to load photo ${i + 1}:`, error);
-    }
+      return null;
+    });
+
+    photoPromises.push(photoPromise);
   }
 
-  canvas.renderAll();
+  try {
+    const loadedPhotos = await Promise.all(photoPromises);
+    
+    // Add successfully loaded photos to canvas
+    loadedPhotos.forEach((photoImg) => {
+      if (photoImg) {
+        canvas.add(photoImg);
+      }
+    });
+
+    canvas.renderAll();
+  } catch (error) {
+    console.error('Error adding photos to canvas:', error);
+    canvas.renderAll(); // Still render what we have
+  }
 };
 
 /**

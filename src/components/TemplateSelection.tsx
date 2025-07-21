@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Check } from "lucide-react"
+import TemplatePreview from "@/components/TemplatePreview"
 
 type Template = {
   id: number
@@ -38,11 +39,11 @@ export default function TemplateSelection({
               onClick={() => setSelectedTemplate(template.id)}
             >
               <div className="flex items-center">
-                <div className="relative flex-shrink-0 w-24 h-24">
-                  <img
-                    src={template.preview || "/placeholder.svg"}
-                    alt={template.title}
-                    className="w-full h-full object-cover rounded-xl"
+                <div className="relative flex-shrink-0 w-24 h-42">
+                  <TemplatePreview
+                    templateId={template.id}
+                    photos={[]}
+                    className="w-full rounded-xl"
                   />
                   {selectedTemplate === template.id && (
                     <div className="absolute top-2 right-2 bg-[#74A57F] rounded-full p-1">
@@ -72,10 +73,10 @@ export default function TemplateSelection({
               onClick={() => setSelectedTemplate(template.id)}
             >
               <div className="relative">
-                <img
-                  src={template.preview || "/placeholder.svg"}
-                  alt={template.title}
-                  className="w-full h-32 object-cover rounded-xl mb-3"
+                <TemplatePreview
+                  templateId={template.id}
+                  photos={[]}
+                  className="w-full h-32"
                 />
                 {selectedTemplate === template.id && (
                   <div className="absolute top-2 right-2 bg-[#74A57F] rounded-full p-1">

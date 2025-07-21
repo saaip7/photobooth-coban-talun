@@ -47,6 +47,12 @@ export const useAppNavigation = () => {
     return currentStepIndex > 0
   }
 
+  const updateSelectedTemplate = (templateId: number) => {
+    setSelectedTemplate(templateId)
+    // Reset photos when template changes to prevent mismatch
+    setUploadedPhotos([])
+  }
+
   const resetApp = () => {
     setCurrentStep('welcome')
     setSelectedTemplate(null)
@@ -75,7 +81,7 @@ export const useAppNavigation = () => {
   return {
     currentStep,
     selectedTemplate,
-    setSelectedTemplate,
+    setSelectedTemplate: updateSelectedTemplate,
     uploadedPhotos,
     setUploadedPhotos,
     goToNext,
