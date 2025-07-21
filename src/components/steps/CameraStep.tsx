@@ -45,7 +45,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   const time = new Date(new Date().getTime() + TIMER)
   
-  const { totalSeconds, start, restart, isRunning } = useTimer({
+  const { totalSeconds, restart, isRunning } = useTimer({
     interval: 1000,
     onExpire: () => {
       // Capture photo when timer expires
