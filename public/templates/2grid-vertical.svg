@@ -1,0 +1,24 @@
+<!-- Simple SVG template for 2-slot vertical layout -->
+<svg width="400" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="600" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="200" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#343a40">
+    Photobooth Coban Talun
+  </text>
+  
+  <!-- Photo Slots -->
+  <!-- Slot 1 -->
+  <rect x="100" y="50" width="200" height="150" fill="#e9ecef" stroke="#adb5bd" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="200" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6c757d">Foto 1</text>
+  
+  <!-- Slot 2 -->
+  <rect x="100" y="220" width="200" height="150" fill="#e9ecef" stroke="#adb5bd" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="200" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6c757d">Foto 2</text>
+  
+  <!-- Footer -->
+  <text x="200" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#74A57F">
+    Kenangan Indah dari Coban Talun
+  </text>
+</svg>
