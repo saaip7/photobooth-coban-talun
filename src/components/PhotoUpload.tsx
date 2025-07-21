@@ -2,7 +2,7 @@
 
 import { Camera, ImageIcon, X, RefreshCw } from "lucide-react"
 import { useState, useRef, useCallback, useEffect } from "react"
-import { getUserMediaStream, capturePhotoFromStream } from "@/lib/canvasUtils"
+import { getUserMediaStream, capturePhotoFromStream } from "../lib/canvasUtils"
 import type React from "react"
 
 interface PhotoUploadProps {

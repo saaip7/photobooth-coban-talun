@@ -1,7 +1,5 @@
 "use client"
 
-import Image from "next/image"
-
 interface TemplatePreviewProps {
   templateId: number | null
   photos: string[]

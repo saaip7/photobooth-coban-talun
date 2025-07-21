@@ -5,7 +5,7 @@ import AppNavigation from "@/components/AppNavigation"
 import WelcomeStep from "@/components/steps/WelcomeStep"
 import TemplateStep from "@/components/steps/TemplateStep"
 import PhotoStep from "@/components/steps/PhotoStep"
-import PreviewStep from "@/components/steps/PreviewStepNew"
+import PreviewStep from "@/components/steps/PreviewStep"
 
 export type Template = {
   id: number

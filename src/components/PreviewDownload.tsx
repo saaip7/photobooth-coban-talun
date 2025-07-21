@@ -1,10 +1,10 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "../components/ui/button"
 import { Check, Download, ImageIcon, RefreshCw } from "lucide-react"
 import { useState } from "react"
-import { exportCanvasToPNG, downloadBlob } from "@/lib/canvasUtils"
-import { usePhotboothCanvas } from "@/lib/usePhotoboothCanvas"
+import { exportCanvasToPNG, downloadBlob } from "../lib/canvasUtils"
+import { usePhotboothCanvas } from "../lib/usePhotoboothCanvas"
 
 interface PreviewDownloadProps {
   selectedTemplate: number | null

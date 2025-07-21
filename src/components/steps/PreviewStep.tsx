@@ -5,6 +5,7 @@ import { Download, RefreshCw, RotateCcw, Share2 } from "lucide-react"
 import { useState } from "react"
 import { exportCanvasToPNG, downloadBlob } from "@/lib/canvasUtils"
 import { usePhotboothCanvas } from "@/lib/usePhotoboothCanvas"
+import TemplatePreview from "@/components/TemplatePreview"
 
 interface PreviewStepProps {
   selectedTemplate: number | null
@@ -16,13 +17,13 @@ export default function PreviewStep({ selectedTemplate, uploadedPhotos, onReset 
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadSuccess, setDownloadSuccess] = useState(false)
   
+  // Canvas is only used for export, hidden from view
   const {
     canvasRef,
     fabricCanvas,
     isGenerating,
     previewReady,
-    refreshCanvas,
-    getCanvasSize
+    refreshCanvas
   } = usePhotboothCanvas(selectedTemplate, uploadedPhotos)
 
   const handleDownload = async () => {
@@ -99,7 +100,7 @@ export default function PreviewStep({ selectedTemplate, uploadedPhotos, onReset 
       {/* Header */}
       <div className="text-center">
         <h2 className="text-2xl md:text-3xl font-bold text-[#3E3E3E] mb-2">
-          Story Photobooth Ready!
+          📱 Story Photobooth Ready!
         </h2>
         <p className="text-gray-600">
           {templateInfo.name} • {uploadedPhotos.length} foto • Instagram Story Format
@@ -109,47 +110,33 @@ export default function PreviewStep({ selectedTemplate, uploadedPhotos, onReset 
         </div>
       </div>
 
-      {/* Preview Canvas */}
+      {/* Visual Preview using TemplatePreview */}
       <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
-        {/* Fixed 9:16 Container with overflow hidden */}
-        <div className="relative mx-auto overflow-hidden rounded-xl bg-gray-50" 
-             style={{ 
-               width: '240px', 
-               height: '426px', // 240 * (16/9) = 426px for 9:16 aspect ratio
-               maxWidth: '90vw'
-             }}>
-          {/* Canvas - positioned to fit within container */}
-          <div className="relative flex justify-center items-center h-full">
-            <canvas
-              ref={canvasRef}
-              className="rounded-xl shadow-md max-w-full max-h-full object-contain"
-              style={{ 
-                display: selectedTemplate ? 'block' : 'none'
-              }}
-            />
-            
-            {/* Loading overlay for photo processing */}
-            {isGenerating && (
-              <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-xl">
-                <div className="text-center">
-                  <RefreshCw className="w-8 h-8 text-[#74A57F] animate-spin mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Memproses preview...</p>
-                </div>
-              </div>
-            )}
-
-            {/* Refresh button */}
-            {selectedTemplate && uploadedPhotos.length > 0 && (
-              <button
-                onClick={refreshCanvas}
-                className="absolute top-2 right-2 bg-white shadow-md rounded-full p-2 hover:bg-gray-50 transition-colors"
-                title="Refresh preview"
-              >
-                <RefreshCw className="w-4 h-4 text-gray-600" />
-              </button>
-            )}
-          </div>
+        <div className="flex justify-center">
+          <TemplatePreview
+            templateId={selectedTemplate}
+            photos={uploadedPhotos}
+            className="w-[240px] max-w-[90vw]"
+          />
         </div>
+        
+        {/* Processing indicator */}
+        {isGenerating && (
+          <div className="mt-4 bg-blue-50 rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-2 text-blue-700">
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              <span className="text-sm">Menyiapkan file download...</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Hidden Canvas for Export */}
+      <div className="hidden">
+        <canvas
+          ref={canvasRef}
+          style={{ display: 'none' }}
+        />
       </div>
 
       {/* Stats */}
@@ -208,6 +195,18 @@ export default function PreviewStep({ selectedTemplate, uploadedPhotos, onReset 
               ✅ Foto berhasil diunduh! Cek folder Download kamu.
             </div>
           </div>
+        )}
+
+        {/* Refresh Canvas (for re-generating export) */}
+        {selectedTemplate && uploadedPhotos.length > 0 && (
+          <Button
+            onClick={refreshCanvas}
+            variant="ghost"
+            className="w-full text-gray-500 hover:text-gray-700 rounded-2xl py-2 transition-all duration-200 flex items-center justify-center"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh Export
+          </Button>
         )}
 
         {/* Secondary Action */}
