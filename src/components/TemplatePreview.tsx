@@ -31,21 +31,21 @@ const TEMPLATE_CONFIGS: Record<number, {
         y: 15,
         width: 70,
         height: 22,
-        borderRadius: "12px"
+        borderRadius: "0px"
       },
       {
         x: 15,
         y: 39,
         width: 70,
         height: 22,
-        borderRadius: "12px"
+        borderRadius: "0px"
       },
       {
         x: 15,
         y: 63,
         width: 70,
         height: 22,
-        borderRadius: "12px"
+        borderRadius: "0px"
       }
     ]
   },
@@ -59,14 +59,14 @@ const TEMPLATE_CONFIGS: Record<number, {
         y: 20,
         width: 70,
         height: 28,
-        borderRadius: "12px"
+        borderRadius: "0px"
       },
       {
         x: 15,
         y: 52,
         width: 70,
         height: 28,
-        borderRadius: "12px"
+        borderRadius: "0px"
       }
     ]
   }
