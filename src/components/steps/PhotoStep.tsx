@@ -221,15 +221,15 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
               <p className="text-sm opacity-75">Pilih foto yang sudah ada di galeri</p>
             </button>
 
-            {/* Manual Camera */}
-            <button
+            {/* Manual Camera - COMMENTED OUT */}
+            {/* <button
               onClick={() => setPhotoMode("camera")}
               className="bg-white border-2 border-gray-300 text-gray-700 rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:border-[#74A57F] hover:text-[#74A57F]"
             >
               <Camera className="w-8 h-8 mx-auto mb-3" />
               <h4 className="font-bold text-lg mb-2">📸 Kamera Manual</h4>
               <p className="text-sm opacity-75">Ambil foto satu per satu secara manual</p>
-            </button>
+            </button> */}
           </div>
         </div>
       )}
