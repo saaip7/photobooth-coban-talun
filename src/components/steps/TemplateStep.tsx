@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Check } from "lucide-react"
 import { Template } from "@/app/page"
+import { useState } from "react"
 
 interface TemplateStepProps {
   templates: Template[]
@@ -15,6 +16,12 @@ export default function TemplateStep({
   selectedTemplate,
   setSelectedTemplate,
 }: TemplateStepProps) {
+  const [activeTab, setActiveTab] = useState<'3slot' | '2slot'>('3slot')
+
+  // Group templates by type
+  const threeSlotTemplates = templates.filter(t => t.id === 1)
+  const twoSlotTemplates = templates.filter(t => t.id === 2)
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -29,50 +36,127 @@ export default function TemplateStep({
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {templates.map((template) => (
-          <Card
-            key={template.id}
-            className={`p-4 cursor-pointer transition-all duration-200 rounded-2xl ${
-              selectedTemplate === template.id
-                ? "ring-4 ring-[#74A57F] bg-white shadow-lg scale-105"
-                : "bg-white/80 hover:bg-white hover:shadow-md hover:scale-102"
-            }`}
-            onClick={() => setSelectedTemplate(template.id)}
-          >
-            <div className="flex items-center space-x-4">
-              <div className="relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24">
+      {/* Tab Navigation */}
+      <div className="flex bg-gray-100 rounded-2xl p-1">
+        <button
+          onClick={() => setActiveTab('3slot')}
+          className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
+            activeTab === '3slot'
+              ? 'bg-white text-[#74A57F] shadow-md'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          3 Slot Template
+        </button>
+        <button
+          onClick={() => setActiveTab('2slot')}
+          className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
+            activeTab === '2slot'
+              ? 'bg-white text-[#74A57F] shadow-md'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          2 Slot Template
+        </button>
+      </div>
+
+      {/* Template Content */}
+      <div className="space-y-4">
+        {activeTab === '3slot' && (
+          <div className="space-y-4">
+            <div className="text-center text-gray-600 mb-4">
+              <p className="text-sm">Perfect untuk 3 momen spesial - Instagram Story ready!</p>
+            </div>
+            
+            {/* 3 Slot Template Preview */}
+            <div className="flex justify-center">
+              <div className="w-48 h-80 relative">
                 <img
-                  src={template.preview || "/placeholder.svg"}
-                  alt={template.title}
-                  className="w-full h-full object-cover rounded-xl"
+                  src="/templates/3slot-vertical.svg"
+                  alt="3 Slot Template Preview"
+                  className="w-full h-full object-contain rounded-xl border-2 border-gray-200"
                 />
-                {selectedTemplate === template.id && (
-                  <div className="absolute -top-2 -right-2 bg-[#74A57F] rounded-full p-1">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex-1">
-                <h3 className="font-semibold text-[#3E3E3E] text-lg">
-                  {template.title}
-                </h3>
-                <p className="text-gray-500 text-sm mt-1">
-                  {template.id === 1 && "Perfect untuk 3 momen spesial - Instagram Story ready!"}
-                  {template.id === 2 && "Ideal untuk couple atau duo memories - Story format!"}
-                </p>
-                
-                {selectedTemplate === template.id && (
-                  <div className="mt-2 flex items-center text-[#74A57F] text-sm font-medium">
-                    <Check className="w-4 h-4 mr-1" />
-                    Template Terpilih
-                  </div>
-                )}
               </div>
             </div>
-          </Card>
-        ))}
+
+            {threeSlotTemplates.map((template) => (
+              <Card
+                key={template.id}
+                className={`p-6 cursor-pointer transition-all duration-200 rounded-2xl ${
+                  selectedTemplate === template.id
+                    ? "ring-4 ring-[#74A57F] bg-white shadow-lg scale-105"
+                    : "bg-white/80 hover:bg-white hover:shadow-md hover:scale-102"
+                }`}
+                onClick={() => setSelectedTemplate(template.id)}
+              >
+                <div className="text-center">
+                  <h3 className="font-semibold text-[#3E3E3E] text-lg mb-2">
+                    {template.title}
+                  </h3>
+                  
+                  {selectedTemplate === template.id ? (
+                    <div className="flex items-center justify-center text-[#74A57F] text-sm font-medium">
+                      <Check className="w-5 h-5 mr-2" />
+                      Template Terpilih
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 text-sm">
+                      Klik untuk memilih template ini
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {activeTab === '2slot' && (
+          <div className="space-y-4">
+            <div className="text-center text-gray-600 mb-4">
+              <p className="text-sm">Ideal untuk couple atau duo memories - Story format!</p>
+            </div>
+            
+            {/* 2 Slot Template Preview */}
+            <div className="flex justify-center">
+              <div className="w-48 h-80 relative">
+                <img
+                  src="/templates/2slot-vertical.svg"
+                  alt="2 Slot Template Preview"
+                  className="w-full h-full object-contain rounded-xl border-2 border-gray-200"
+                />
+              </div>
+            </div>
+
+            {twoSlotTemplates.map((template) => (
+              <Card
+                key={template.id}
+                className={`p-6 cursor-pointer transition-all duration-200 rounded-2xl ${
+                  selectedTemplate === template.id
+                    ? "ring-4 ring-[#74A57F] bg-white shadow-lg scale-105"
+                    : "bg-white/80 hover:bg-white hover:shadow-md hover:scale-102"
+                }`}
+                onClick={() => setSelectedTemplate(template.id)}
+              >
+                <div className="text-center">
+                  <h3 className="font-semibold text-[#3E3E3E] text-lg mb-2">
+                    {template.title}
+                  </h3>
+                  
+                  {selectedTemplate === template.id ? (
+                    <div className="flex items-center justify-center text-[#74A57F] text-sm font-medium">
+                      <Check className="w-5 h-5 mr-2" />
+                      Template Terpilih
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 text-sm">
+                      Klik untuk memilih template ini
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {selectedTemplate && (
