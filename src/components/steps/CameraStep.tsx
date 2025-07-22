@@ -300,7 +300,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
           {/* Horizontal Layout when device is actually horizontal */}
           {deviceOrientation === 'landscape' && (
-            <div className="min-h-screen bg-gray-100">
+            <div className="min-h-screen bg-[#F5EFE6]">
               <div className="p-4">
                 {/* Landscape Layout - Camera and Controls Side by Side */}
                 <div className="flex flex-row items-start justify-center gap-6 max-w-6xl mx-auto">

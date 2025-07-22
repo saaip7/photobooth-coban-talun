@@ -34,23 +34,27 @@ export default function AppNavigation({
   return (
     <div className="bg-white/95 backdrop-blur-sm border-b border-gray-200">
       <div className="max-w-md mx-auto p-4">
-        {/* Header */}
+        {/* Compact Header with Progress Bar */}
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-bold text-[#3E3E3E]">
+          {/* Left: Title */}
+          <h1 className="text-lg font-bold text-[#3E3E3E] flex-shrink-0 mr-4">
             {getStepTitle()}
           </h1>
-          <div className="text-sm text-gray-500">
-            {currentStepIndex + 1}/{totalSteps}
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-4">
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-[#74A57F] h-2 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${getProgress()}%` }}
-            />
+          
+          {/* Right: Progress Bar and Step Counter */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {/* Progress Bar */}
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-[#74A57F] h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${getProgress()}%` }}
+              />
+            </div>
+            
+            {/* Step Counter */}
+            <div className="text-sm text-gray-500 flex-shrink-0">
+              {currentStepIndex + 1}/{totalSteps}
+            </div>
           </div>
         </div>
 
