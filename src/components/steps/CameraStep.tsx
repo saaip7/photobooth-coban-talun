@@ -200,239 +200,303 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   return (
     <>
-      {/* Landscape Camera Mode for Mobile - Horizontal Layout */}
+      {/* Landscape Camera Mode for Mobile */}
       {isMobile && isLandscapeMode && (
-        <div className="min-h-screen bg-gray-100">
-          
-          {/* Orientation Reminder Overlay */}
-          {showOrientationReminder && deviceOrientation === 'portrait' && (
-            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl p-6 max-w-sm text-center">
-                <div className="text-6xl mb-4">📱➡️</div>
-                <h3 className="text-xl font-bold mb-4 text-[#3E3E3E]">Putar HP ke Horizontal</h3>
-                <p className="text-gray-600 mb-4">
-                  Untuk menggunakan mode landscape, silakan:
+        <>
+          {/* Portrait Layout with Modal when device is still portrait */}
+          {deviceOrientation === 'portrait' && (
+            <div className="space-y-6">
+              {/* Normal Portrait Content (same as regular UI) */}
+              <div className="text-center">
+                <h2 className="text-2xl md:text-3xl font-bold text-[#3E3E3E] mb-2">
+                  📸 Camera Photobooth
+                </h2>
+                <p className="text-gray-600">
+                  Ambil foto langsung dengan kamera • Maksimal {maxPhotos} foto
                 </p>
-                <div className="text-left space-y-2 mb-6 text-sm">
-                  <p>1. 🔓 Unlock orientation lock (jika aktif)</p>
-                  <p>2. 🔄 Putar HP ke posisi horizontal</p>
-                  <p>3. 📸 Mulai ambil foto</p>
+              </div>
+
+              {/* Camera Preview (Portrait) */}
+              <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
+                <div className="relative mx-auto overflow-hidden rounded-xl" 
+                     style={{ 
+                       width: '100%', 
+                       maxWidth: '400px',
+                       aspectRatio: '4/3',
+                     }}>
+                  
+                  <Webcam
+                    ref={webcamRef}
+                    audio={false}
+                    mirrored={true}
+                    screenshotFormat="image/jpeg"
+                    className="w-full h-full object-cover"
+                    onUserMedia={() => setCameraReady(true)}
+                    onUserMediaError={(error) => {
+                      console.error('Camera error:', error)
+                      setCameraReady(false)
+                    }}
+                    videoConstraints={{
+                      width: { ideal: 1280, min: 640 },
+                      height: { ideal: 960, min: 480 },
+                      facingMode: "user",
+                      aspectRatio: { ideal: 4/3 }
+                    }}
+                  />
+                  
+                  {/* Camera Loading */}
+                  {!cameraReady && (
+                    <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-20">
+                      <div className="text-center text-white">
+                        <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <div className="text-lg font-medium">Menyalakan kamera...</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={() => setShowOrientationReminder(false)}
-                  className="w-full bg-[#74A57F] text-white py-3 rounded-xl font-semibold hover:bg-[#5d8a68] transition-colors mb-3"
-                >
-                  Mengerti, Lanjutkan
-                </button>
+              </div>
+
+              {/* Exit Button */}
+              <div className="flex justify-center">
                 <button
                   onClick={handleExitLandscape}
-                  className="w-full bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors"
+                  className="bg-gray-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors"
                 >
-                  Kembali ke Mode Portrait
+                  ← Kembali ke Mode Portrait
                 </button>
               </div>
+
+              {/* Orientation Reminder Overlay */}
+              {showOrientationReminder && (
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                  <div className="bg-white rounded-2xl p-6 max-w-sm text-center">
+                    <div className="text-6xl mb-4">📱➡️</div>
+                    <h3 className="text-xl font-bold mb-4 text-[#3E3E3E]">Putar HP ke Horizontal</h3>
+                    <p className="text-gray-600 mb-4">
+                      Untuk menggunakan mode landscape, silakan:
+                    </p>
+                    <div className="text-left space-y-2 mb-6 text-sm">
+                      <p>1. 🔓 Unlock orientation lock (jika aktif)</p>
+                      <p>2. 🔄 Putar HP ke posisi horizontal</p>
+                      <p>3. 📸 Mulai ambil foto</p>
+                    </div>
+                    <button
+                      onClick={() => setShowOrientationReminder(false)}
+                      className="w-full bg-[#74A57F] text-white py-3 rounded-xl font-semibold hover:bg-[#5d8a68] transition-colors mb-3"
+                    >
+                      Mengerti, Lanjutkan
+                    </button>
+                    <button
+                      onClick={handleExitLandscape}
+                      className="w-full bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors"
+                    >
+                      Kembali ke Mode Portrait
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Main Content */}
-          <div className="p-4">
-            {/* Landscape Layout - Camera and Controls Side by Side */}
-            <div className="flex flex-row items-start justify-center gap-6 max-w-6xl mx-auto">
-              
-              {/* Camera Frame - Left Side */}
-              <div className="flex-shrink-0">
-                <div className="bg-white rounded-2xl p-4 shadow-lg">
-                  <div className="relative overflow-hidden rounded-xl" 
-                       style={{ 
-                         width: '400px',
-                         height: '300px', // 4:3 aspect ratio
-                       }}>
-                    
-                    <Webcam
-                      ref={webcamRef}
-                      audio={false}
-                      mirrored={true}
-                      screenshotFormat="image/jpeg"
-                      className="w-full h-full object-cover"
-                      onUserMedia={() => setCameraReady(true)}
-                      onUserMediaError={(error) => {
-                        console.error('Camera error:', error)
-                        setCameraReady(false)
-                      }}
-                      videoConstraints={{
-                        width: { ideal: 1280, min: 640 },
-                        height: { ideal: 960, min: 480 },
-                        facingMode: "user",
-                        aspectRatio: { ideal: 4/3 }
-                      }}
-                    />
-                    
-                    {/* Camera Loading */}
-                    {!cameraReady && (
-                      <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                          <div className="text-sm font-medium">Loading...</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Timer Overlay */}
-                    {isRunning && cameraReady && (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <div className="bg-black/70 rounded-xl p-4 text-center text-white">
-                          <div className="text-4xl font-bold mb-2 drop-shadow-lg">
-                            {totalSeconds === 4 ? "📸" : totalSeconds}
-                          </div>
-                          <div className="text-lg font-semibold drop-shadow-md">
-                            {getCountdownMessage()}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Completion Message */}
-                    {!isRunning && capturedPhotos.length >= maxPhotos && cameraReady && (
-                      <div className="absolute inset-0 bg-black/75 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <div className="text-3xl mb-3">🎉</div>
-                          <div className="text-lg font-medium">
-                            {getCompletionMessage()}
-                          </div>
-                          <div className="text-sm mt-2 opacity-80">
-                            Semua foto sudah siap!
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+          {/* Horizontal Layout when device is actually horizontal */}
+          {deviceOrientation === 'landscape' && (
+            <div className="min-h-screen bg-gray-100">
+              <div className="p-4">
+                {/* Landscape Layout - Camera and Controls Side by Side */}
+                <div className="flex flex-row items-start justify-center gap-6 max-w-6xl mx-auto">
                   
-                  {/* Orientation Status */}
-                  <div className="mt-3 text-center text-sm">
-                    {deviceOrientation === 'portrait' ? (
-                      <p className="text-orange-600">⚠️ Putar HP ke horizontal untuk hasil terbaik</p>
-                    ) : (
-                      <p className="text-green-600">✅ Orientasi horizontal aktif</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Controls Panel - Right Side */}
-              <div className="flex flex-col items-center space-y-4 min-w-[300px]">
-                
-                {/* Header */}
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-[#3E3E3E] mb-2">
-                    📸 Live Photobooth
-                  </h2>
-                  <p className="text-gray-600 text-sm">
-                    {capturedPhotos.length}/{maxPhotos} foto
-                  </p>
-                </div>
-
-                {/* Exit Button */}
-                <button
-                  onClick={handleExitLandscape}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-full text-sm hover:bg-gray-600 transition-colors"
-                >
-                  ← Kembali
-                </button>
-
-                {/* Main Capture Button */}
-                {capturedPhotos.length < maxPhotos && (
-                  <button
-                    onClick={() => {
-                      if (!started) {
-                        setStarted(true)
-                        const newTime = new Date(new Date().getTime() + TIMER)
-                        restart(newTime)
-                      } else if (capturedPhotos.length < maxPhotos) {
-                        const newTime = new Date(new Date().getTime() + TIMER)
-                        restart(newTime)
-                      }
-                    }}
-                    disabled={isRunning || !cameraReady}
-                    className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-full p-8 shadow-lg transition-all duration-200"
-                  >
-                    <Camera className="w-12 h-12" />
-                  </button>
-                )}
-
-                {/* Action Buttons when photos are captured */}
-                {capturedPhotos.length > 0 && (
-                  <div className="flex flex-col space-y-3 w-full max-w-xs">
-                    {capturedPhotos.length >= maxPhotos && (
-                      <button
-                        onClick={handleExitLandscape}
-                        className="w-full bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors"
-                      >
-                        Selesai
-                      </button>
-                    )}
-                    <button
-                      onClick={handleRetake}
-                      className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors"
-                    >
-                      Ulangi Semua
-                    </button>
-                  </div>
-                )}
-
-                {/* Photo Thumbnails */}
-                {capturedPhotos.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-center text-[#3E3E3E]">
-                      Foto Tersimpan
-                    </h3>
-                    <div className="flex flex-col space-y-2">
-                      {capturedPhotos.map((photo, index) => (
-                        <div
-                          key={index}
-                          className="w-20 h-15 rounded overflow-hidden border-2 border-[#74A57F] shadow-md relative"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={photo}
-                            alt={`Foto ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute top-1 left-1 bg-[#74A57F] text-white text-xs px-1 py-0.5 rounded">
-                            {index + 1}
+                  {/* Camera Frame - Left Side */}
+                  <div className="flex-shrink-0">
+                    <div className="bg-white rounded-2xl p-4 shadow-lg">
+                      <div className="relative overflow-hidden rounded-xl" 
+                           style={{ 
+                             width: '400px',
+                             height: '300px', // 4:3 aspect ratio
+                           }}>
+                        
+                        <Webcam
+                          ref={webcamRef}
+                          audio={false}
+                          mirrored={true}
+                          screenshotFormat="image/jpeg"
+                          className="w-full h-full object-cover"
+                          onUserMedia={() => setCameraReady(true)}
+                          onUserMediaError={(error) => {
+                            console.error('Camera error:', error)
+                            setCameraReady(false)
+                          }}
+                          videoConstraints={{
+                            width: { ideal: 1280, min: 640 },
+                            height: { ideal: 960, min: 480 },
+                            facingMode: "user",
+                            aspectRatio: { ideal: 4/3 }
+                          }}
+                        />
+                        
+                        {/* Camera Loading */}
+                        {!cameraReady && (
+                          <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+                            <div className="text-center text-white">
+                              <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                              <div className="text-sm font-medium">Loading...</div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )}
+                        
+                        {/* Timer Overlay */}
+                        {isRunning && cameraReady && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <div className="bg-black/70 rounded-xl p-4 text-center text-white">
+                              <div className="text-4xl font-bold mb-2 drop-shadow-lg">
+                                {totalSeconds === 4 ? "📸" : totalSeconds}
+                              </div>
+                              <div className="text-lg font-semibold drop-shadow-md">
+                                {getCountdownMessage()}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Completion Message */}
+                        {!isRunning && capturedPhotos.length >= maxPhotos && cameraReady && (
+                          <div className="absolute inset-0 bg-black/75 flex items-center justify-center">
+                            <div className="text-center text-white">
+                              <div className="text-3xl mb-3">🎉</div>
+                              <div className="text-lg font-medium">
+                                {getCompletionMessage()}
+                              </div>
+                              <div className="text-sm mt-2 opacity-80">
+                                Semua foto sudah siap!
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Orientation Status */}
+                      <div className="mt-3 text-center text-sm">
+                        <p className="text-green-600">✅ Orientasi horizontal aktif</p>
+                      </div>
                     </div>
                   </div>
-                )}
 
-                {/* Status Messages */}
-                <div className="text-center text-sm space-y-1">
-                  {!cameraReady && (
-                    <p className="text-orange-600">
-                      📷 Menunggu kamera...
-                    </p>
-                  )}
-                  {isRunning && (
-                    <p className="text-blue-600">
-                      ⏱️ Bersiap mengambil foto...
-                    </p>
-                  )}
-                  {capturedPhotos.length >= maxPhotos && (
-                    <p className="text-green-600">
-                      ✅ Semua foto selesai!
-                    </p>
-                  )}
-                </div>
+                  {/* Controls Panel - Right Side */}
+                  <div className="flex flex-col items-center space-y-4 min-w-[300px]">
+                    
+                    {/* Header */}
+                    <div className="text-center">
+                      <h2 className="text-xl font-bold text-[#3E3E3E] mb-2">
+                        📸 Live Photobooth
+                      </h2>
+                      <p className="text-gray-600 text-sm">
+                        {capturedPhotos.length}/{maxPhotos} foto
+                      </p>
+                    </div>
 
-                {/* Tips */}
-                <div className="text-xs text-gray-500 text-center max-w-xs">
-                  💡 Tips: Pastikan HP dalam posisi horizontal untuk hasil foto terbaik
+                    {/* Exit Button */}
+                    <button
+                      onClick={handleExitLandscape}
+                      className="bg-gray-500 text-white px-4 py-2 rounded-full text-sm hover:bg-gray-600 transition-colors"
+                    >
+                      ← Kembali
+                    </button>
+
+                    {/* Main Capture Button */}
+                    {capturedPhotos.length < maxPhotos && (
+                      <button
+                        onClick={() => {
+                          if (!started) {
+                            setStarted(true)
+                            const newTime = new Date(new Date().getTime() + TIMER)
+                            restart(newTime)
+                          } else if (capturedPhotos.length < maxPhotos) {
+                            const newTime = new Date(new Date().getTime() + TIMER)
+                            restart(newTime)
+                          }
+                        }}
+                        disabled={isRunning || !cameraReady}
+                        className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-full p-8 shadow-lg transition-all duration-200"
+                      >
+                        <Camera className="w-12 h-12" />
+                      </button>
+                    )}
+
+                    {/* Action Buttons when photos are captured */}
+                    {capturedPhotos.length > 0 && (
+                      <div className="flex flex-col space-y-3 w-full max-w-xs">
+                        {capturedPhotos.length >= maxPhotos && (
+                          <button
+                            onClick={handleExitLandscape}
+                            className="w-full bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+                          >
+                            Selesai
+                          </button>
+                        )}
+                        <button
+                          onClick={handleRetake}
+                          className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors"
+                        >
+                          Ulangi Semua
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Photo Thumbnails */}
+                    {capturedPhotos.length > 0 && (
+                      <div className="space-y-3">
+                        <h3 className="text-sm font-semibold text-center text-[#3E3E3E]">
+                          Foto Tersimpan
+                        </h3>
+                        <div className="flex flex-col space-y-2">
+                          {capturedPhotos.map((photo, index) => (
+                            <div
+                              key={index}
+                              className="w-20 h-15 rounded overflow-hidden border-2 border-[#74A57F] shadow-md relative"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={photo}
+                                alt={`Foto ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute top-1 left-1 bg-[#74A57F] text-white text-xs px-1 py-0.5 rounded">
+                                {index + 1}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Status Messages */}
+                    <div className="text-center text-sm space-y-1">
+                      {!cameraReady && (
+                        <p className="text-orange-600">
+                          📷 Menunggu kamera...
+                        </p>
+                      )}
+                      {isRunning && (
+                        <p className="text-blue-600">
+                          ⏱️ Bersiap mengambil foto...
+                        </p>
+                      )}
+                      {capturedPhotos.length >= maxPhotos && (
+                        <p className="text-green-600">
+                          ✅ Semua foto selesai!
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Tips */}
+                    <div className="text-xs text-gray-500 text-center max-w-xs">
+                      💡 Tips: Hasil foto akan optimal dalam format horizontal
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
       {/* Normal UI - Desktop and Mobile Portrait */}
