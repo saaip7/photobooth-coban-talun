@@ -481,7 +481,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         <p>🔄 Bisa diulangi kapan saja jika tidak puas</p>
         {isMobile && (
           <p className="text-blue-600 font-medium">
-            📱 Untuk HP: Klik "Mulai Foto" untuk mode landscape horizontal
+            📱 Untuk HP: Klik &quot;Mulai Foto&quot; untuk mode landscape horizontal
           </p>
         )}
         {!cameraReady && (
