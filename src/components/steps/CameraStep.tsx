@@ -45,7 +45,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   const time = new Date(new Date().getTime() + TIMER)
   
-  // Function to crop image to match camera frame aspect ratio first (4:3), then to canvas (9:16)
+  // Function to crop image to match camera frame aspect ratio first (16:9), then to canvas (9:16)
   const cropImageToCanvasRatio = (imageSrc: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image()
@@ -56,8 +56,8 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         const sourceWidth = img.width
         const sourceHeight = img.height
         
-        // Step 1: Crop to match camera frame aspect ratio (4:3 horizontal)
-        const cameraFrameAspectRatio = 4 / 3 // Same as camera preview div
+        // Step 1: Crop to match camera frame aspect ratio (16:9 horizontal)
+        const cameraFrameAspectRatio = 16 / 9 // Same as camera preview div
         let frameWidth = sourceWidth
         let frameHeight = sourceHeight
         let frameOffsetX = 0
@@ -66,11 +66,11 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         const sourceAspectRatio = sourceWidth / sourceHeight
         
         if (sourceAspectRatio > cameraFrameAspectRatio) {
-          // Source is wider than 4:3, crop width to match camera frame
+          // Source is wider than 16:9, crop width to match camera frame
           frameWidth = sourceHeight * cameraFrameAspectRatio
           frameOffsetX = (sourceWidth - frameWidth) / 2
         } else {
-          // Source is taller than 4:3, crop height to match camera frame
+          // Source is taller than 16:9, crop height to match camera frame
           frameHeight = sourceWidth / cameraFrameAspectRatio
           frameOffsetY = (sourceHeight - frameHeight) / 2
         }
@@ -201,74 +201,127 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         )}
       </div>
 
-      {/* Camera Preview */}
+      {/* Camera Preview and Controls - Horizontal Layout */}
       <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
-        <div className="relative mx-auto overflow-hidden rounded-xl" 
-             style={{ 
-               width: '100%', 
-               maxWidth: '400px',
-               aspectRatio: '4/3', // Standard camera aspect ratio (horizontal)
-             }}>
-          
-          {/* Webcam */}
-          <Webcam
-            ref={webcamRef}
-            audio={false}
-            mirrored={true}
-            screenshotFormat="image/jpeg"
-            className="w-full h-full object-cover"
-            onUserMedia={() => setCameraReady(true)}
-            onUserMediaError={(error) => {
-              console.error('Camera error:', error)
-              setCameraReady(false)
-            }}
-            videoConstraints={{
-              width: { ideal: 1920, min: 720 },
-              height: { ideal: 1080, min: 480 },
-              facingMode: "user",
-              aspectRatio: { ideal: 16/9 }
-            }}
-          />
-          
-          {/* Camera Loading */}
-          {!cameraReady && (
-            <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-20">
-              <div className="text-center text-white">
-                <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <div className="text-lg font-medium">Menyalakan kamera...</div>
-                <div className="text-sm opacity-75 mt-1">Pastikan izin kamera sudah diberikan</div>
-              </div>
-            </div>
-          )}
-          
-          {/* Timer Overlay - Semi-transparent so user can see camera */}
-          {isRunning && cameraReady && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-              <div className="bg-black/40 rounded-2xl p-6 text-center text-white">
-                <div className="text-7xl font-bold mb-3 drop-shadow-lg">
-                  {totalSeconds === 4 ? "📸" : totalSeconds}
-                </div>
-                <div className="text-2xl font-semibold drop-shadow-md">
-                  {getCountdownMessage()}
+        <div className="flex flex-col md:flex-row gap-6 items-center">
+          {/* Camera Preview */}
+          <div className="relative overflow-hidden rounded-xl flex-shrink-0" 
+               style={{ 
+                 width: '100%',
+                 maxWidth: '320px',
+                 aspectRatio: '16/9', // Horizontal camera aspect ratio
+               }}>
+            
+            {/* Webcam */}
+            <Webcam
+              ref={webcamRef}
+              audio={false}
+              mirrored={true}
+              screenshotFormat="image/jpeg"
+              className="w-full h-full object-cover"
+              onUserMedia={() => setCameraReady(true)}
+              onUserMediaError={(error) => {
+                console.error('Camera error:', error)
+                setCameraReady(false)
+              }}
+              videoConstraints={{
+                width: { ideal: 1920, min: 720 },
+                height: { ideal: 1080, min: 480 },
+                facingMode: "user",
+                aspectRatio: { ideal: 16/9 }
+              }}
+            />
+            
+            {/* Camera Loading */}
+            {!cameraReady && (
+              <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-20">
+                <div className="text-center text-white">
+                  <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <div className="text-sm font-medium">Loading...</div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+            
+            {/* Timer Overlay */}
+            {isRunning && cameraReady && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                <div className="bg-black/40 rounded-xl p-4 text-center text-white">
+                  <div className="text-4xl font-bold mb-2 drop-shadow-lg">
+                    {totalSeconds === 4 ? "📸" : totalSeconds}
+                  </div>
+                  <div className="text-lg font-semibold drop-shadow-md">
+                    {getCountdownMessage()}
+                  </div>
+                </div>
+              </div>
+            )}
 
-          {/* Completion Message */}
-          {!isRunning && capturedPhotos.length >= maxPhotos && cameraReady && (
-            <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10">
-              <div className="text-center text-white">
-                <div className="text-4xl mb-4">🎉</div>
-                <div className="text-xl font-medium">
-                  {getCompletionMessage()}
-                </div>
-                <div className="text-sm mt-2 opacity-80">
-                  Semua foto sudah siap!
+            {/* Completion Message */}
+            {!isRunning && capturedPhotos.length >= maxPhotos && cameraReady && (
+              <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10">
+                <div className="text-center text-white">
+                  <div className="text-2xl mb-2">🎉</div>
+                  <div className="text-sm font-medium">
+                    {getCompletionMessage()}
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Controls Side Panel */}
+          <div className="flex-1 space-y-4 min-w-0">
+            {/* Primary Action Button */}
+            {capturedPhotos.length < maxPhotos && (
+              <Button
+                onClick={handleStartCapture}
+                disabled={isRunning || !cameraReady}
+                className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-xl py-4 text-lg font-semibold shadow-lg transition-all duration-200 flex items-center justify-center"
+              >
+                <Camera className="w-5 h-5 mr-2" />
+                {!cameraReady 
+                  ? "Menunggu kamera..."
+                  : !started 
+                    ? "Mulai Foto 📸"
+                    : capturedPhotos.length === 0 
+                      ? "Ambil Foto Pertama"
+                      : `Ambil Foto ${capturedPhotos.length + 1}`
+                }
+              </Button>
+            )}
+
+            {/* Navigation Buttons */}
+            {capturedPhotos.length > 0 && (
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={handleRetake}
+                  variant="outline"
+                  className="border-red-400 text-red-600 hover:bg-red-50 rounded-xl py-3 text-sm font-semibold transition-all duration-200 flex items-center justify-center"
+                >
+                  <RotateCcw className="w-4 h-4 mr-1" />
+                  Ulangi
+                </Button>
+
+                <Button
+                  onClick={handleContinue}
+                  className="bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-xl py-3 text-sm font-semibold transition-all duration-200 flex items-center justify-center"
+                >
+                  Lanjut
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            )}
+
+            {/* Status Info */}
+            <div className="text-center text-sm text-gray-600">
+              <p>📷 {capturedPhotos.length}/{maxPhotos} foto</p>
+              {!cameraReady && (
+                <p className="text-orange-600 mt-1">
+                  Pastikan izin kamera sudah diberikan
+                </p>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -282,7 +335,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
             {capturedPhotos.map((photo, index) => (
               <div
                 key={index}
-                className={`relative flex-shrink-0 w-24 h-18 rounded-md overflow-hidden border-2 transition-all ${
+                className={`relative flex-shrink-0 w-20 h-16 rounded-md overflow-hidden border-2 transition-all ${
                   index === currentPhotoIndex 
                     ? 'border-[#74A57F] shadow-lg scale-105' 
                     : 'border-gray-200'
@@ -304,69 +357,19 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
             {Array.from({ length: maxPhotos - capturedPhotos.length }).map((_, index) => (
               <div
                 key={index + capturedPhotos.length}
-                className="flex-shrink-0 w-24 h-18 rounded-md border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
+                className="flex-shrink-0 w-20 h-16 rounded-md border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
               >
-                <Camera className="w-6 h-6 text-gray-400" />
+                <Camera className="w-5 h-5 text-gray-400" />
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Control Buttons */}
-      <div className="space-y-4">
-        {/* Primary Action */}
-        {capturedPhotos.length < maxPhotos && (
-          <Button
-            onClick={handleStartCapture}
-            disabled={isRunning || !cameraReady}
-            className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-2xl py-6 text-xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center"
-          >
-            <Camera className="w-6 h-6 mr-3" />
-            {!cameraReady 
-              ? "Menunggu kamera..."
-              : !started 
-                ? "Mulai Foto 📸"
-                : capturedPhotos.length === 0 
-                  ? "Ambil Foto Pertama"
-                  : `Ambil Foto ${capturedPhotos.length + 1}`
-            }
-          </Button>
-        )}
-
-        {/* Navigation Buttons */}
-        {capturedPhotos.length > 0 && (
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              onClick={handleRetake}
-              variant="outline"
-              className="border-red-400 text-red-600 hover:bg-red-50 rounded-2xl py-4 text-lg font-semibold transition-all duration-200 flex items-center justify-center"
-            >
-              <RotateCcw className="w-5 h-5 mr-2" />
-              Ulangi
-            </Button>
-
-            <Button
-              onClick={handleContinue}
-              className="bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl py-4 text-lg font-semibold transition-all duration-200 flex items-center justify-center"
-            >
-              Lanjut
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
-        )}
-      </div>
-
       {/* Instructions */}
-      <div className="text-center text-sm text-gray-500 space-y-2">
-        <p>🎯 Pastikan wajah terlihat jelas di dalam frame</p>
-        <p>⏱️ Setiap foto akan diambil otomatis setelah hitungan mundur</p>
-        <p>🔄 Bisa diulangi kapan saja jika tidak puas</p>
-        {!cameraReady && (
-          <p className="text-orange-600 font-medium">
-            📷 Jika kamera tidak muncul, pastikan izin kamera sudah diberikan
-          </p>
-        )}
+      <div className="text-center text-sm text-gray-500 space-y-1">
+        <p>🎯 Pastikan wajah terlihat jelas di dalam frame kamera</p>
+        <p>⏱️ Foto akan diambil otomatis setelah hitungan mundur</p>
       </div>
     </div>
   )
