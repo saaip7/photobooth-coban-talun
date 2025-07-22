@@ -31,9 +31,10 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [cameraReady, setCameraReady] = useState(false)
   const [isLandscapeMode, setIsLandscapeMode] = useState(false)
+  const [deviceOrientation, setDeviceOrientation] = useState<'portrait' | 'landscape'>('portrait')
   const webcamRef = useRef<Webcam | null>(null)
 
-  // Detect if device is mobile and in portrait mode
+  // Detect if device is mobile and track orientation
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -41,7 +42,25 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
       const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768
       setIsMobile(mobile)
     }
+
+    const handleOrientationChange = () => {
+      // Detect actual device orientation
+      const isLandscape = window.innerWidth > window.innerHeight || 
+                         (window.screen && Math.abs(window.screen.orientation?.angle || 0) === 90)
+      setDeviceOrientation(isLandscape ? 'landscape' : 'portrait')
+    }
+
     checkMobile()
+    handleOrientationChange()
+
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', handleOrientationChange)
+    window.addEventListener('resize', handleOrientationChange)
+
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange)
+      window.removeEventListener('resize', handleOrientationChange)
+    }
   }, [])
 
   // Get max photos based on selected template
@@ -164,135 +183,158 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   return (
     <>
-      {/* Landscape Camera Mode for Mobile - Rotated 90 degrees */}
+      {/* Landscape Camera Mode for Mobile */}
       {isMobile && isLandscapeMode && (
         <div className="fixed inset-0 bg-black z-50">
-          {/* Rotated container */}
-          <div className="w-full h-full origin-center" style={{ transform: 'rotate(90deg)' }}>
-            <div className="w-screen h-screen relative" style={{ width: '100vh', height: '100vw' }}>
-              
-              {/* Camera view */}
-              <div className="relative w-full h-full">
-                <Webcam
-                  ref={webcamRef}
-                  audio={false}
-                  mirrored={true}
-                  screenshotFormat="image/jpeg"
-                  className="w-full h-full object-cover"
-                  onUserMedia={() => setCameraReady(true)}
-                  onUserMediaError={(error) => {
-                    console.error('Camera error:', error)
-                    setCameraReady(false)
-                  }}
-                  videoConstraints={{
-                    width: { ideal: 1920, min: 720 },
-                    height: { ideal: 1080, min: 480 },
-                    facingMode: "user",
-                    aspectRatio: { ideal: 16/9 }
-                  }}
-                />
+          {/* Fullscreen camera without rotation - let device orientation handle it */}
+          <div className="w-full h-full relative">
+            
+            {/* Camera view */}
+            <div className="relative w-full h-full">
+              <Webcam
+                ref={webcamRef}
+                audio={false}
+                mirrored={true}
+                screenshotFormat="image/jpeg"
+                className="w-full h-full object-cover"
+                onUserMedia={() => setCameraReady(true)}
+                onUserMediaError={(error) => {
+                  console.error('Camera error:', error)
+                  setCameraReady(false)
+                }}
+                videoConstraints={{
+                  width: { ideal: 1920, min: 720 },
+                  height: { ideal: 1080, min: 480 },
+                  facingMode: "user"
+                }}
+              />
 
-                {/* Top controls */}
-                <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
-                  <button
-                    onClick={handleExitLandscape}
-                    className="bg-black/60 text-white rounded-full p-3 hover:bg-black/80 transition-colors"
-                    style={{ transform: 'rotate(-90deg)' }}
-                  >
-                    ←
-                  </button>
-                  <div className="bg-black/60 rounded-full px-4 py-2 text-white text-sm">
-                    {capturedPhotos.length}/{maxPhotos} foto
-                  </div>
-                </div>
-
-                {/* Timer Overlay */}
-                {isRunning && cameraReady && (
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-                    <div className="bg-black/70 rounded-2xl p-8 text-center text-white">
-                      <div className="text-8xl font-bold mb-4 drop-shadow-lg">
-                        {totalSeconds === 4 ? "📸" : totalSeconds}
-                      </div>
-                      <div className="text-3xl font-semibold drop-shadow-md">
-                        {getCountdownMessage()}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Completion Message */}
-                {!isRunning && capturedPhotos.length >= maxPhotos && cameraReady && (
-                  <div className="absolute inset-0 bg-black/75 flex items-center justify-center z-10">
-                    <div className="text-center text-white">
-                      <div className="text-6xl mb-6">🎉</div>
-                      <div className="text-3xl font-medium mb-4">
-                        {getCompletionMessage()}
-                      </div>
-                      <div className="text-lg opacity-80">
-                        Semua foto sudah siap!
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Bottom controls */}
-                <div className="absolute bottom-6 left-4 right-4 z-20">
-                  {capturedPhotos.length < maxPhotos ? (
-                    <div className="flex justify-center">
-                      <button
-                        onClick={() => {
-                          if (!started) {
-                            setStarted(true)
-                            const newTime = new Date(new Date().getTime() + TIMER)
-                            restart(newTime)
-                          } else if (capturedPhotos.length < maxPhotos) {
-                            const newTime = new Date(new Date().getTime() + TIMER)
-                            restart(newTime)
-                          }
-                        }}
-                        disabled={isRunning || !cameraReady}
-                        className="bg-white text-black rounded-full p-6 shadow-lg hover:bg-gray-100 disabled:bg-gray-300 transition-all duration-200"
-                      >
-                        <Camera className="w-8 h-8" style={{ transform: 'rotate(-90deg)' }} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex justify-center space-x-4">
-                      <button
-                        onClick={handleRetake}
-                        className="bg-red-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-600 transition-colors"
-                      >
-                        Ulangi
-                      </button>
-                      <button
-                        onClick={handleExitLandscape}
-                        className="bg-green-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
-                      >
-                        Selesai
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Photo Thumbnails */}
-                  {capturedPhotos.length > 0 && (
-                    <div className="flex justify-center mt-4 space-x-2">
-                      {capturedPhotos.map((photo, index) => (
-                        <div
-                          key={index}
-                          className="w-16 h-12 rounded overflow-hidden border-2 border-white shadow-lg"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={photo}
-                            alt={`Foto ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              {/* Top controls - adjust based on device orientation */}
+              <div className={`absolute top-4 z-20 ${
+                deviceOrientation === 'landscape' 
+                  ? 'left-4 right-4 flex justify-between items-center' 
+                  : 'left-4 right-4 flex justify-between items-center'
+              }`}>
+                <button
+                  onClick={handleExitLandscape}
+                  className="bg-black/60 text-white rounded-full p-3 hover:bg-black/80 transition-colors"
+                >
+                  {deviceOrientation === 'landscape' ? '←' : '↑'}
+                </button>
+                <div className="bg-black/60 rounded-full px-4 py-2 text-white text-sm">
+                  {capturedPhotos.length}/{maxPhotos} foto
                 </div>
               </div>
+
+              {/* Timer Overlay */}
+              {isRunning && cameraReady && (
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                  <div className="bg-black/70 rounded-2xl p-8 text-center text-white">
+                    <div className="text-8xl font-bold mb-4 drop-shadow-lg">
+                      {totalSeconds === 4 ? "📸" : totalSeconds}
+                    </div>
+                    <div className="text-3xl font-semibold drop-shadow-md">
+                      {getCountdownMessage()}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Completion Message */}
+              {!isRunning && capturedPhotos.length >= maxPhotos && cameraReady && (
+                <div className="absolute inset-0 bg-black/75 flex items-center justify-center z-10">
+                  <div className="text-center text-white">
+                    <div className="text-6xl mb-6">🎉</div>
+                    <div className="text-3xl font-medium mb-4">
+                      {getCompletionMessage()}
+                    </div>
+                    <div className="text-lg opacity-80">
+                      Semua foto sudah siap!
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bottom controls - adjust based on device orientation */}
+              <div className={`absolute bottom-6 z-20 ${
+                deviceOrientation === 'landscape' 
+                  ? 'left-4 right-4' 
+                  : 'left-4 right-4'
+              }`}>
+                {capturedPhotos.length < maxPhotos ? (
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => {
+                        if (!started) {
+                          setStarted(true)
+                          const newTime = new Date(new Date().getTime() + TIMER)
+                          restart(newTime)
+                        } else if (capturedPhotos.length < maxPhotos) {
+                          const newTime = new Date(new Date().getTime() + TIMER)
+                          restart(newTime)
+                        }
+                      }}
+                      disabled={isRunning || !cameraReady}
+                      className="bg-white text-black rounded-full p-6 shadow-lg hover:bg-gray-100 disabled:bg-gray-300 transition-all duration-200"
+                    >
+                      <Camera className="w-8 h-8" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex justify-center space-x-4">
+                    <button
+                      onClick={handleRetake}
+                      className="bg-red-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-600 transition-colors"
+                    >
+                      Ulangi
+                    </button>
+                    <button
+                      onClick={handleExitLandscape}
+                      className="bg-green-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
+                    >
+                      Selesai
+                    </button>
+                  </div>
+                )}
+
+                {/* Photo Thumbnails */}
+                {capturedPhotos.length > 0 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    {capturedPhotos.map((photo, index) => (
+                      <div
+                        key={index}
+                        className="w-16 h-12 rounded overflow-hidden border-2 border-white shadow-lg"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photo}
+                          alt={`Foto ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Orientation instruction overlay */}
+              {deviceOrientation === 'portrait' && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-30">
+                  <div className="bg-black/80 rounded-2xl p-8 text-center text-white max-w-sm mx-4">
+                    <div className="text-6xl mb-4">📱➡️</div>
+                    <h3 className="text-2xl font-semibold mb-4">Putar HP Anda</h3>
+                    <p className="text-lg mb-6">
+                      Untuk menggunakan mode landscape, silakan putar HP ke posisi horizontal
+                    </p>
+                    <button
+                      onClick={handleExitLandscape}
+                      className="bg-white text-black px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+                    >
+                      Kembali
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -481,7 +523,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         <p>🔄 Bisa diulangi kapan saja jika tidak puas</p>
         {isMobile && (
           <p className="text-blue-600 font-medium">
-            📱 Untuk HP: Klik &quot;Mulai Foto&quot; untuk mode landscape horizontal
+            📱 Untuk HP: Klik &quot;Mode Landscape&quot;, lalu putar HP ke horizontal
           </p>
         )}
         {!cameraReady && (
