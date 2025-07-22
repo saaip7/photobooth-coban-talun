@@ -23,20 +23,27 @@ export default function PhotoUpload({ uploadedPhotos, setUploadedPhotos }: Photo
     const files = event.target.files
     if (files) {
       const newPhotos: string[] = []
-      Array.from(files)
-        .slice(0, 3 - uploadedPhotos.length) // Respect max 3 photos limit
-        .forEach((file) => {
-          const reader = new FileReader()
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              newPhotos.push(e.target.result as string)
-              if (newPhotos.length === Math.min(files.length, 3 - uploadedPhotos.length)) {
+      const filesToProcess = Array.from(files).slice(0, 3 - uploadedPhotos.length)
+      let processedCount = 0
+      
+      filesToProcess.forEach((file) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            const photoDataURL = e.target.result as string
+            // Crop the uploaded photo to match canvas aspect ratio
+            cropPhotoToCanvasRatio(photoDataURL).then((croppedPhoto) => {
+              newPhotos.push(croppedPhoto)
+              processedCount++
+              
+              if (processedCount === filesToProcess.length) {
                 setUploadedPhotos((prev) => [...prev, ...newPhotos].slice(0, 3))
               }
-            }
+            })
           }
-          reader.readAsDataURL(file)
-        })
+        }
+        reader.readAsDataURL(file)
+      })
     }
   }
 
@@ -79,14 +86,67 @@ export default function PhotoUpload({ uploadedPhotos, setUploadedPhotos }: Photo
     if (videoRef.current && uploadedPhotos.length < 3 && isVideoReady) {
       try {
         const photoDataURL = capturePhotoFromStream(videoRef.current, 640, 480)
-        setUploadedPhotos(prev => [...prev, photoDataURL].slice(0, 3))
-        closeCamera()
+        // Crop the photo to match canvas aspect ratio (9:16)
+        cropPhotoToCanvasRatio(photoDataURL).then((croppedPhoto) => {
+          setUploadedPhotos(prev => [...prev, croppedPhoto].slice(0, 3))
+          closeCamera()
+        })
       } catch (error) {
         console.error('Failed to capture photo:', error)
         alert('Gagal mengambil foto. Silakan coba lagi.')
       }
     }
   }, [uploadedPhotos.length, closeCamera, setUploadedPhotos, isVideoReady])
+
+  // Function to crop photo to match canvas aspect ratio (9:16)
+  const cropPhotoToCanvasRatio = (photoDataURL: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')!
+        
+        const sourceWidth = img.width
+        const sourceHeight = img.height
+        const targetAspectRatio = 9 / 16 // Instagram Stories format
+        
+        // Calculate crop dimensions to match target aspect ratio
+        let cropWidth = sourceWidth
+        let cropHeight = sourceHeight
+        let offsetX = 0
+        let offsetY = 0
+        
+        const sourceAspectRatio = sourceWidth / sourceHeight
+        
+        if (sourceAspectRatio > targetAspectRatio) {
+          // Source is wider, crop width (center crop)
+          cropWidth = sourceHeight * targetAspectRatio
+          offsetX = (sourceWidth - cropWidth) / 2
+        } else {
+          // Source is taller, crop height (center crop)
+          cropHeight = sourceWidth / targetAspectRatio
+          offsetY = (sourceHeight - cropHeight) / 2
+        }
+        
+        // Set canvas size to match target aspect ratio
+        const outputWidth = 540 // 9:16 format width
+        const outputHeight = 960 // 9:16 format height
+        
+        canvas.width = outputWidth
+        canvas.height = outputHeight
+        
+        // Draw cropped image
+        ctx.drawImage(
+          img,
+          offsetX, offsetY, cropWidth, cropHeight, // Source rectangle (cropped area)
+          0, 0, outputWidth, outputHeight // Destination rectangle (full canvas)
+        )
+        
+        resolve(canvas.toDataURL('image/jpeg', 0.9))
+      }
+      img.src = photoDataURL
+    })
+  }
 
   // Remove photo
   const removePhoto = (index: number) => {
