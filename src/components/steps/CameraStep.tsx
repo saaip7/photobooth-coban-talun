@@ -45,7 +45,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   const time = new Date(new Date().getTime() + TIMER)
   
-  // Function to crop image to match canvas aspect ratio (9:16)
+  // Function to crop image to match camera frame aspect ratio first (4:3), then to canvas (9:16)
   const cropImageToCanvasRatio = (imageSrc: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image()
@@ -55,39 +55,43 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         
         const sourceWidth = img.width
         const sourceHeight = img.height
-        const targetAspectRatio = 9 / 16 // Instagram Stories format (portrait)
         
-        // Detect if image is landscape or portrait
-        const isSourceLandscape = sourceWidth > sourceHeight
+        // Step 1: Crop to match camera frame aspect ratio (4:3 horizontal)
+        const cameraFrameAspectRatio = 4 / 3 // Same as camera preview div
+        let frameWidth = sourceWidth
+        let frameHeight = sourceHeight
+        let frameOffsetX = 0
+        let frameOffsetY = 0
+        
         const sourceAspectRatio = sourceWidth / sourceHeight
         
-        let cropWidth = sourceWidth
-        let cropHeight = sourceHeight
-        let offsetX = 0
-        let offsetY = 0
-        
-        if (isSourceLandscape) {
-          // Source is landscape (HP horizontal) - crop to portrait
-          // We want to take the center portion and make it portrait
-          cropHeight = sourceHeight
-          cropWidth = sourceHeight * targetAspectRatio // 9/16 of height
-          offsetX = (sourceWidth - cropWidth) / 2
-          offsetY = 0
+        if (sourceAspectRatio > cameraFrameAspectRatio) {
+          // Source is wider than 4:3, crop width to match camera frame
+          frameWidth = sourceHeight * cameraFrameAspectRatio
+          frameOffsetX = (sourceWidth - frameWidth) / 2
         } else {
-          // Source is portrait (HP vertical) - already portrait, just adjust aspect ratio
-          if (sourceAspectRatio < targetAspectRatio) {
-            // Source is too tall, crop height
-            cropWidth = sourceWidth
-            cropHeight = sourceWidth / targetAspectRatio
-            offsetX = 0
-            offsetY = (sourceHeight - cropHeight) / 2
-          } else {
-            // Source is too wide (unlikely for portrait), crop width
-            cropHeight = sourceHeight
-            cropWidth = sourceHeight * targetAspectRatio
-            offsetX = (sourceWidth - cropWidth) / 2
-            offsetY = 0
-          }
+          // Source is taller than 4:3, crop height to match camera frame
+          frameHeight = sourceWidth / cameraFrameAspectRatio
+          frameOffsetY = (sourceHeight - frameHeight) / 2
+        }
+        
+        // Step 2: From the cropped camera frame, crop to canvas aspect ratio (9:16)
+        const targetAspectRatio = 9 / 16 // Instagram Stories format (portrait)
+        const frameAspectRatio = frameWidth / frameHeight
+        
+        let finalWidth = frameWidth
+        let finalHeight = frameHeight
+        let finalOffsetX = frameOffsetX
+        let finalOffsetY = frameOffsetY
+        
+        if (frameAspectRatio > targetAspectRatio) {
+          // Frame is wider than 9:16, crop width from the frame
+          finalWidth = frameHeight * targetAspectRatio
+          finalOffsetX = frameOffsetX + (frameWidth - finalWidth) / 2
+        } else {
+          // Frame is taller than 9:16, crop height from the frame
+          finalHeight = frameWidth / targetAspectRatio
+          finalOffsetY = frameOffsetY + (frameHeight - finalHeight) / 2
         }
         
         // Set canvas size to match target aspect ratio
@@ -97,10 +101,10 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         canvas.width = outputWidth
         canvas.height = outputHeight
         
-        // Draw cropped image
+        // Draw cropped image (using final crop coordinates)
         ctx.drawImage(
           img,
-          offsetX, offsetY, cropWidth, cropHeight, // Source rectangle
+          finalOffsetX, finalOffsetY, finalWidth, finalHeight, // Source rectangle
           0, 0, outputWidth, outputHeight // Destination rectangle
         )
         
