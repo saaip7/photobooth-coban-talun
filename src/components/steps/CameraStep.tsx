@@ -76,7 +76,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   const time = new Date(new Date().getTime() + TIMER)
   
-  // Simple function to resize image for canvas (no complex cropping needed with landscape mode)
+  // Function to resize image for canvas - use horizontal format for landscape mode
   const prepareImageForCanvas = (imageSrc: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image()
@@ -84,14 +84,23 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')!
         
-        // Set canvas size to match target aspect ratio
-        const outputWidth = 540 // 9:16 format width
-        const outputHeight = 960 // 9:16 format height
+        // Set canvas size based on mode - horizontal for landscape, vertical for portrait
+        let outputWidth, outputHeight
+        
+        if (isLandscapeMode) {
+          // Horizontal format for landscape mode (4:3 ratio like camera)
+          outputWidth = 960  // 4:3 format width (horizontal)
+          outputHeight = 720 // 4:3 format height
+        } else {
+          // Vertical format for portrait mode
+          outputWidth = 540  // 9:16 format width
+          outputHeight = 960 // 9:16 format height
+        }
         
         canvas.width = outputWidth
         canvas.height = outputHeight
         
-        // Simply resize the landscape image to fit canvas
+        // Resize the image to fit canvas
         ctx.drawImage(img, 0, 0, outputWidth, outputHeight)
         
         resolve(canvas.toDataURL('image/jpeg', 0.9))
