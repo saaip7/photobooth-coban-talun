@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Camera, RotateCcw, ArrowRight } from "lucide-react"
+import { Camera, RotateCcw, ArrowRight, RotateCw } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useTimer } from "react-timer-hook"
 import Webcam from "react-webcam"
@@ -30,6 +30,8 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
   const [started, setStarted] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [cameraReady, setCameraReady] = useState(false)
+  const [isLandscape, setIsLandscape] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const webcamRef = useRef<Webcam | null>(null)
 
   // Get max photos based on selected template
@@ -112,6 +114,35 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
     return CAMERA_MESSAGES[Math.floor(Math.random() * CAMERA_MESSAGES.length)]
   }
 
+  // Check if device is mobile and orientation
+  useEffect(() => {
+    const checkDevice = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768
+      setIsMobile(isMobileDevice)
+    }
+
+    const checkOrientation = () => {
+      if (window.screen && window.screen.orientation) {
+        setIsLandscape(window.screen.orientation.angle === 90 || window.screen.orientation.angle === -90)
+      } else {
+        // Fallback for older browsers
+        setIsLandscape(window.innerWidth > window.innerHeight)
+      }
+    }
+
+    checkDevice()
+    checkOrientation()
+
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', checkOrientation)
+    window.addEventListener('resize', checkOrientation)
+
+    return () => {
+      window.removeEventListener('orientationchange', checkOrientation)
+      window.removeEventListener('resize', checkOrientation)
+    }
+  }, [])
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -131,6 +162,26 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
       {/* Camera Preview */}
       <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
+        {/* Mobile Portrait Warning */}
+        {isMobile && !isLandscape && (
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-6 mb-4">
+            <div className="text-center">
+              <RotateCw className="w-12 h-12 text-orange-500 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-orange-800 mb-2">
+                Putar HP Anda
+              </h3>
+              <p className="text-orange-700 text-sm mb-4">
+                Untuk hasil foto terbaik, silakan putar HP ke mode landscape (horizontal) terlebih dahulu
+              </p>
+              <div className="flex items-center justify-center space-x-2 text-orange-600">
+                <span className="text-2xl">📱</span>
+                <RotateCw className="w-6 h-6" />
+                <span className="text-2xl">📱</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="relative mx-auto overflow-hidden rounded-xl" 
              style={{ 
                width: '100%', 
@@ -246,17 +297,19 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         {capturedPhotos.length < maxPhotos && (
           <Button
             onClick={handleStartCapture}
-            disabled={isRunning || !cameraReady}
+            disabled={isRunning || !cameraReady || (isMobile && !isLandscape)}
             className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-2xl py-6 text-xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center"
           >
             <Camera className="w-6 h-6 mr-3" />
             {!cameraReady 
               ? "Menunggu kamera..."
-              : !started 
-                ? "Mulai Foto 📸"
-                : capturedPhotos.length === 0 
-                  ? "Ambil Foto Pertama"
-                  : `Ambil Foto ${capturedPhotos.length + 1}`
+              : (isMobile && !isLandscape)
+                ? "Putar HP ke Landscape dulu"
+                : !started 
+                  ? "Mulai Foto 📸"
+                  : capturedPhotos.length === 0 
+                    ? "Ambil Foto Pertama"
+                    : `Ambil Foto ${capturedPhotos.length + 1}`
             }
           </Button>
         )}
@@ -289,6 +342,11 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         <p>🎯 Pastikan wajah terlihat jelas di dalam frame</p>
         <p>⏱️ Setiap foto akan diambil otomatis setelah hitungan mundur</p>
         <p>🔄 Bisa diulangi kapan saja jika tidak puas</p>
+        {isMobile && (
+          <p className="text-orange-600 font-medium">
+            📱 Untuk HP: Putar ke mode landscape untuk hasil foto terbaik
+          </p>
+        )}
         {!cameraReady && (
           <p className="text-orange-600 font-medium">
             📷 Jika kamera tidak muncul, pastikan izin kamera sudah diberikan
