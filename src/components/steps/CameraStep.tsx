@@ -55,24 +55,39 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         
         const sourceWidth = img.width
         const sourceHeight = img.height
-        const targetAspectRatio = 9 / 16 // Instagram Stories format
+        const targetAspectRatio = 9 / 16 // Instagram Stories format (portrait)
         
-        // Calculate crop dimensions to match target aspect ratio
+        // Detect if image is landscape or portrait
+        const isSourceLandscape = sourceWidth > sourceHeight
+        const sourceAspectRatio = sourceWidth / sourceHeight
+        
         let cropWidth = sourceWidth
         let cropHeight = sourceHeight
         let offsetX = 0
         let offsetY = 0
         
-        const sourceAspectRatio = sourceWidth / sourceHeight
-        
-        if (sourceAspectRatio > targetAspectRatio) {
-          // Source is wider, crop width
-          cropWidth = sourceHeight * targetAspectRatio
+        if (isSourceLandscape) {
+          // Source is landscape (HP horizontal) - crop to portrait
+          // We want to take the center portion and make it portrait
+          cropHeight = sourceHeight
+          cropWidth = sourceHeight * targetAspectRatio // 9/16 of height
           offsetX = (sourceWidth - cropWidth) / 2
+          offsetY = 0
         } else {
-          // Source is taller, crop height
-          cropHeight = sourceWidth / targetAspectRatio
-          offsetY = (sourceHeight - cropHeight) / 2
+          // Source is portrait (HP vertical) - already portrait, just adjust aspect ratio
+          if (sourceAspectRatio < targetAspectRatio) {
+            // Source is too tall, crop height
+            cropWidth = sourceWidth
+            cropHeight = sourceWidth / targetAspectRatio
+            offsetX = 0
+            offsetY = (sourceHeight - cropHeight) / 2
+          } else {
+            // Source is too wide (unlikely for portrait), crop width
+            cropHeight = sourceHeight
+            cropWidth = sourceHeight * targetAspectRatio
+            offsetX = (sourceWidth - cropWidth) / 2
+            offsetY = 0
+          }
         }
         
         // Set canvas size to match target aspect ratio
@@ -204,9 +219,10 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
               setCameraReady(false)
             }}
             videoConstraints={{
-              width: 1280,
-              height: 720,
-              facingMode: "user"
+              width: { ideal: 1920, min: 720 },
+              height: { ideal: 1080, min: 480 },
+              facingMode: "user",
+              aspectRatio: { ideal: 16/9 }
             }}
           />
           
