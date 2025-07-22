@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Camera, RotateCcw, ArrowRight, RotateCw } from "lucide-react"
+import { Camera, RotateCcw, ArrowRight, RotateCw, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useTimer } from "react-timer-hook"
 import Webcam from "react-webcam"
@@ -145,20 +145,141 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#3E3E3E] mb-2">
-          📸 Camera Photobooth
-        </h2>
-        <p className="text-gray-600">
-          Ambil foto langsung dengan kamera • Maksimal {maxPhotos} foto
-        </p>
-        {capturedPhotos.length > 0 && (
-          <div className="mt-2 text-sm text-[#74A57F] font-medium">
-            {capturedPhotos.length}/{maxPhotos} foto tersimpan ✅
+      {/* Mobile Landscape Fullscreen Camera */}
+      {isMobile && isLandscape && cameraReady && (
+        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+          {/* Camera View */}
+          <div className="relative w-full h-full">
+            <Webcam
+              ref={webcamRef}
+              audio={false}
+              mirrored={true}
+              screenshotFormat="image/jpeg"
+              className="w-full h-full object-cover"
+              onUserMedia={() => setCameraReady(true)}
+              onUserMediaError={(error) => {
+                console.error('Camera error:', error)
+                setCameraReady(false)
+              }}
+              videoConstraints={{
+                width: 1920,
+                height: 1080,
+                facingMode: "user"
+              }}
+            />
+
+            {/* Top Bar - Progress */}
+            <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
+              <div className="bg-black/60 rounded-full px-4 py-2 text-white text-sm">
+                {capturedPhotos.length}/{maxPhotos} foto
+              </div>
+              <button
+                onClick={handleRetake}
+                className="bg-black/60 text-white rounded-full p-3 hover:bg-black/80 transition-colors"
+                title="Keluar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Center - Timer Overlay */}
+            {isRunning && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                <div className="bg-black/70 rounded-2xl p-8 text-center text-white">
+                  <div className="text-8xl font-bold mb-4 drop-shadow-lg">
+                    {totalSeconds === 4 ? "📸" : totalSeconds}
+                  </div>
+                  <div className="text-3xl font-semibold drop-shadow-md">
+                    {getCountdownMessage()}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Completion Message */}
+            {!isRunning && capturedPhotos.length >= maxPhotos && (
+              <div className="absolute inset-0 bg-black/75 flex items-center justify-center z-10">
+                <div className="text-center text-white">
+                  <div className="text-6xl mb-6">🎉</div>
+                  <div className="text-3xl font-medium mb-4">
+                    {getCompletionMessage()}
+                  </div>
+                  <div className="text-lg opacity-80">
+                    Semua foto sudah siap!
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Controls */}
+            <div className="absolute bottom-6 left-4 right-4 z-20">
+              {capturedPhotos.length < maxPhotos ? (
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleStartCapture}
+                    disabled={isRunning}
+                    className="bg-white text-black rounded-full p-6 shadow-lg hover:bg-gray-100 disabled:bg-gray-300 transition-all duration-200"
+                  >
+                    <Camera className="w-8 h-8" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={handleRetake}
+                    className="bg-red-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-600 transition-colors"
+                  >
+                    Ulangi
+                  </button>
+                  <button
+                    onClick={handleContinue}
+                    className="bg-green-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
+                  >
+                    Lanjut
+                  </button>
+                </div>
+              )}
+
+              {/* Photo Thumbnails */}
+              {capturedPhotos.length > 0 && (
+                <div className="flex justify-center mt-4 space-x-2">
+                  {capturedPhotos.map((photo, index) => (
+                    <div
+                      key={index}
+                      className="w-16 h-12 rounded overflow-hidden border-2 border-white shadow-lg"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photo}
+                        alt={`Foto ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Regular UI for Desktop and Portrait Mobile */}
+      {!(isMobile && isLandscape && cameraReady) && (
+        <>
+          {/* Header */}
+          <div className="text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#3E3E3E] mb-2">
+              📸 Camera Photobooth
+            </h2>
+            <p className="text-gray-600">
+              Ambil foto langsung dengan kamera • Maksimal {maxPhotos} foto
+            </p>
+            {capturedPhotos.length > 0 && (
+              <div className="mt-2 text-sm text-[#74A57F] font-medium">
+                {capturedPhotos.length}/{maxPhotos} foto tersimpan ✅
+              </div>
+            )}
+          </div>
 
       {/* Camera Preview */}
       <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
@@ -353,6 +474,8 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
           </p>
         )}
       </div>
+        </>
+      )}
     </div>
   )
 }
