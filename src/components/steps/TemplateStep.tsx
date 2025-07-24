@@ -9,14 +9,27 @@ interface TemplateStepProps {
   templates: Template[]
   selectedTemplate: number | null
   setSelectedTemplate: (id: number) => void
+  onNext?: () => void
 }
 
 export default function TemplateStep({
   templates,
   selectedTemplate,
   setSelectedTemplate,
+  onNext,
 }: TemplateStepProps) {
   const [activeTab, setActiveTab] = useState<'3slot' | '2slot'>('3slot')
+
+  // Handle template selection with auto-next
+  const handleTemplateSelect = (id: number) => {
+    setSelectedTemplate(id)
+    // Auto navigate to next step after short delay
+    if (onNext) {
+      setTimeout(() => {
+        onNext()
+      }, 800) // 800ms delay to show selection feedback
+    }
+  }
 
   // Group templates by type
   const threeSlotTemplates = templates.filter(t => t.id === 1)
@@ -87,7 +100,7 @@ export default function TemplateStep({
                     ? "ring-4 ring-[#74A57F] bg-white shadow-lg scale-105"
                     : "bg-white/80 hover:bg-white hover:shadow-md hover:scale-102"
                 }`}
-                onClick={() => setSelectedTemplate(template.id)}
+                onClick={() => handleTemplateSelect(template.id)}
               >
                 <div className="text-center">
                   <h3 className="font-semibold text-[#3E3E3E] text-lg mb-2">
@@ -135,7 +148,7 @@ export default function TemplateStep({
                     ? "ring-4 ring-[#74A57F] bg-white shadow-lg scale-105"
                     : "bg-white/80 hover:bg-white hover:shadow-md hover:scale-102"
                 }`}
-                onClick={() => setSelectedTemplate(template.id)}
+                onClick={() => handleTemplateSelect(template.id)}
               >
                 <div className="text-center">
                   <h3 className="font-semibold text-[#3E3E3E] text-lg mb-2">

@@ -306,12 +306,12 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
 
       {/* Action Buttons - only show in camera/upload mode */}
       {(photoMode === "camera" || photoMode === "upload") && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
           {photoMode === "camera" && (
             <button
               onClick={openCamera}
               disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
-              className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg"
+              className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg"
             >
               <Camera className="w-8 h-8 mx-auto mb-2" />
               <span className="font-semibold">Ambil Foto</span>
@@ -319,7 +319,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
           )}
 
           {photoMode === "upload" && (
-            <label className={`cursor-pointer ${uploadedPhotos.length >= templateInfo.maxPhotos ? 'cursor-not-allowed' : ''}`}>
+            <label className={`block w-full cursor-pointer ${uploadedPhotos.length >= templateInfo.maxPhotos ? 'cursor-not-allowed' : ''}`}>
               <input 
                 ref={fileInputRef}
                 type="file" 
@@ -329,7 +329,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
                 className="hidden"
                 disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
               />
-              <div className={`bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
+              <div className={`w-full bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
                 uploadedPhotos.length >= templateInfo.maxPhotos ? 'bg-gray-300 hover:bg-gray-300' : ''
               }`}>
                 <ImageIcon className="w-8 h-8 mx-auto mb-2" />

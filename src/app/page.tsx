@@ -40,6 +40,7 @@ export default function CobanTalunPhotobooth() {
             templates={templates}
             selectedTemplate={navigation.selectedTemplate}
             setSelectedTemplate={navigation.setSelectedTemplate}
+            onNext={navigation.goToNext}
           />
         )
       
