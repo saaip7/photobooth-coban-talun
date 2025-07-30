@@ -27,6 +27,7 @@ interface CameraStepProps {
 
 export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }: CameraStepProps) {
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([])
+  const [downloadPhotos, setDownloadPhotos] = useState<string[]>([]) // Separate state for download-optimized images
   const [started, setStarted] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [cameraReady, setCameraReady] = useState(false)
@@ -82,8 +83,8 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   const time = new Date(new Date().getTime() + TIMER)
   
-  // Function to resize image for canvas - minimal processing
-  const prepareImageForCanvas = (imageSrc: string): Promise<string> => {
+  // Function for preview (UI display) - minimal processing
+  const prepareImageForPreview = (imageSrc: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image()
       img.onload = () => {
@@ -126,6 +127,45 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
     })
   }
 
+  // Function for download (no padding, optimized for canvas) 
+  const prepareImageForDownload = (imageSrc: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')!
+        
+        // For both desktop and mobile: no background padding
+        // Let the canvas template handle the final layout
+        if (!isMobile) {
+          // Desktop: keep original
+          canvas.width = img.width
+          canvas.height = img.height
+          ctx.drawImage(img, 0, 0, img.width, img.height)
+        } else {
+          // Mobile: crop to Instagram Story aspect ratio without padding
+          const outputWidth = 540   
+          const outputHeight = 960
+          
+          canvas.width = outputWidth
+          canvas.height = outputHeight
+          
+          // Smart crop for mobile (fill canvas, crop excess)
+          const scale = Math.max(outputWidth / img.width, outputHeight / img.height)
+          const drawWidth = img.width * scale
+          const drawHeight = img.height * scale
+          const drawX = (outputWidth - drawWidth) / 2
+          const drawY = (outputHeight - drawHeight) / 2
+          
+          ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
+        }
+        
+        resolve(canvas.toDataURL('image/jpeg', 0.9))
+      }
+      img.src = imageSrc
+    })
+  }
+
   const { totalSeconds, restart, isRunning } = useTimer({
     interval: 1000,
     onExpire: () => {
@@ -133,14 +173,20 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
       if (webcamRef.current) {
         const imageSrc = webcamRef.current.getScreenshot()
         if (imageSrc) {
-          // Prepare image for canvas
-          prepareImageForCanvas(imageSrc).then((processedImage: string) => {
-            const newPhotos = [...capturedPhotos, processedImage]
-            setCapturedPhotos(newPhotos)
-            setCurrentPhotoIndex(newPhotos.length - 1)
+          // Prepare images for both preview and download
+          Promise.all([
+            prepareImageForPreview(imageSrc),  // For UI preview
+            prepareImageForDownload(imageSrc)  // For final download/canvas
+          ]).then(([previewImage, downloadImage]) => {
+            // Update captured photos for preview with preview-optimized images
+            const newPreviewPhotos = [...capturedPhotos, previewImage]
+            setCapturedPhotos(newPreviewPhotos)
+            setCurrentPhotoIndex(newPreviewPhotos.length - 1)
             
-            // Auto-trigger onPhotosCapture for live preview
-            onPhotosCapture(newPhotos)
+            // Send download-optimized images to parent for canvas
+            const newDownloadPhotos = [...(downloadPhotos || []), downloadImage]
+            setDownloadPhotos(newDownloadPhotos)
+            onPhotosCapture(newDownloadPhotos)
           })
         }
       }
@@ -175,6 +221,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   const handleRetake = () => {
     setCapturedPhotos([])
+    setDownloadPhotos([])
     setCurrentPhotoIndex(0)
     setStarted(false)
     onPhotosCapture([]) // Reset photos in parent
