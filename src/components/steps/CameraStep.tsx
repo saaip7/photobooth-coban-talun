@@ -82,7 +82,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
   const time = new Date(new Date().getTime() + TIMER)
   
-  // Function to resize image for canvas - use horizontal format for landscape mode
+  // Function to resize image for canvas - minimal processing
   const prepareImageForCanvas = (imageSrc: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image()
@@ -90,24 +90,35 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')!
         
-        // Set canvas size based on mode - horizontal for landscape, vertical for portrait
-        let outputWidth, outputHeight
-        
-        if (isLandscapeMode) {
-          // Horizontal format for landscape mode (4:3 ratio like camera)
-          outputWidth = 960  // 4:3 format width (horizontal)
-          outputHeight = 720 // 4:3 format height
+        // For desktop, keep original aspect ratio and size
+        if (!isMobile) {
+          // Desktop: Use original image dimensions - no forced story format
+          canvas.width = img.width
+          canvas.height = img.height
+          
+          // Draw image as-is without any cropping or resizing
+          ctx.drawImage(img, 0, 0, img.width, img.height)
         } else {
-          // Vertical format for portrait mode
-          outputWidth = 540  // 9:16 format width
-          outputHeight = 960 // 9:16 format height
+          // Mobile: Only process for mobile to story format
+          const outputWidth = 540   
+          const outputHeight = 960  
+          
+          canvas.width = outputWidth
+          canvas.height = outputHeight
+          
+          // Fill background with white
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, outputWidth, outputHeight)
+          
+          // Simple fit for mobile
+          const scale = Math.min(outputWidth / img.width, outputHeight / img.height)
+          const drawWidth = img.width * scale
+          const drawHeight = img.height * scale
+          const drawX = (outputWidth - drawWidth) / 2
+          const drawY = (outputHeight - drawHeight) / 2
+          
+          ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
         }
-        
-        canvas.width = outputWidth
-        canvas.height = outputHeight
-        
-        // Resize the image to fit canvas
-        ctx.drawImage(img, 0, 0, outputWidth, outputHeight)
         
         resolve(canvas.toDataURL('image/jpeg', 0.9))
       }
@@ -139,8 +150,8 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
   })
 
   const handleStartCapture = () => {
+    // For mobile, enter landscape mode first
     if (isMobile && !isLandscapeMode) {
-      // For mobile, first enter landscape mode
       setIsLandscapeMode(true)
       setShowOrientationReminder(true)
       return
@@ -222,7 +233,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                      style={{ 
                        width: '100%', 
                        maxWidth: '400px',
-                       aspectRatio: '4/3',
+                       aspectRatio: '16/9',
                      }}>
                   
                   <Webcam
@@ -238,9 +249,9 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                     }}
                     videoConstraints={{
                       width: { ideal: 1280, min: 640 },
-                      height: { ideal: 960, min: 480 },
+                      height: { ideal: 720, min: 480 },
                       facingMode: "user",
-                      aspectRatio: { ideal: 4/3 }
+                      aspectRatio: { ideal: 16/9 }
                     }}
                   />
                   
@@ -311,7 +322,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                       <div className="relative overflow-hidden rounded-xl" 
                            style={{ 
                              width: '400px',
-                             height: '300px', // 4:3 aspect ratio
+                             height: '225px', // 16:9 aspect ratio (400*9/16=225)
                            }}>
                         
                         <Webcam
@@ -327,9 +338,9 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                           }}
                           videoConstraints={{
                             width: { ideal: 1280, min: 640 },
-                            height: { ideal: 960, min: 480 },
+                            height: { ideal: 720, min: 480 },
                             facingMode: "user",
-                            aspectRatio: { ideal: 4/3 }
+                            aspectRatio: { ideal: 16/9 }
                           }}
                         />
                         
@@ -489,7 +500,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
                     {/* Tips */}
                     <div className="text-xs text-gray-500 text-center max-w-xs">
-                      💡 Tips: Hasil foto akan optimal dalam format horizontal
+                      💡 Tips: Foto akan otomatis disesuaikan untuk Instagram Story
                     </div>
                   </div>
                 </div>
@@ -523,7 +534,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
              style={{ 
                width: '100%', 
                maxWidth: '400px',
-               aspectRatio: '4/3', // Standard camera aspect ratio (horizontal)
+               aspectRatio: isMobile ? '4/3' : '16/9', // Desktop uses 16:9, mobile uses 4:3
              }}>
           
           {/* Webcam */}
@@ -538,12 +549,21 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
               console.error('Camera error:', error)
               setCameraReady(false)
             }}
-            videoConstraints={{
-              width: { ideal: 1920, min: 720 },
-              height: { ideal: 1080, min: 480 },
-              facingMode: "user",
-              aspectRatio: { ideal: 16/9 }
-            }}
+            videoConstraints={
+              isMobile ? {
+                // Mobile configuration - optimized for horizontal capture
+                width: { ideal: 1280, min: 640 },
+                height: { ideal: 960, min: 480 },
+                facingMode: "user",
+                aspectRatio: { ideal: 4/3 }
+              } : {
+                // Desktop configuration - standard webcam ratio
+                width: { ideal: 1920, min: 1280 },
+                height: { ideal: 1080, min: 720 },
+                facingMode: "user",
+                aspectRatio: { ideal: 16/9 }
+              }
+            }
           />
           
           {/* Camera Loading */}
@@ -641,7 +661,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
             <Camera className="w-6 h-6 mr-3" />
             {!cameraReady 
               ? "Menunggu kamera..."
-              : (isMobile && !isLandscapeMode)
+              : isMobile && !isLandscapeMode
                 ? "Mode Landscape 📱➡️"
                 : !started 
                   ? "Mulai Foto 📸"
@@ -680,9 +700,13 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         <p>🎯 Pastikan wajah terlihat jelas di dalam frame</p>
         <p>⏱️ Setiap foto akan diambil otomatis setelah hitungan mundur</p>
         <p>🔄 Bisa diulangi kapan saja jika tidak puas</p>
-        {isMobile && (
+        {isMobile ? (
           <p className="text-blue-600 font-medium">
-            📱 Untuk HP: Klik &quot;Mode Landscape&quot;, lalu putar HP ke horizontal
+            📱 Untuk hasil optimal: Gunakan mode landscape (horizontal)
+          </p>
+        ) : (
+          <p className="text-green-600 font-medium">
+            💻 Desktop: Foto otomatis disesuaikan untuk Instagram Story
           </p>
         )}
         {!cameraReady && (
