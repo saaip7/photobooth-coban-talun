@@ -91,27 +91,24 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')!
         
-        // For desktop, keep original aspect ratio and size
         if (!isMobile) {
-          // Desktop: Use original image dimensions - no forced story format
+          // DESKTOP: Use original image dimensions - no forced story format
           canvas.width = img.width
           canvas.height = img.height
-          
-          // Draw image as-is without any cropping or resizing
           ctx.drawImage(img, 0, 0, img.width, img.height)
         } else {
-          // Mobile: Only process for mobile to story format
+          // MOBILE: Create preview in story format with letterbox (for UI display only)
           const outputWidth = 540   
           const outputHeight = 960  
           
           canvas.width = outputWidth
           canvas.height = outputHeight
           
-          // Fill background with white
+          // Fill background with white for preview
           ctx.fillStyle = '#ffffff'
           ctx.fillRect(0, 0, outputWidth, outputHeight)
           
-          // Simple fit for mobile
+          // Fit image without cropping (letterbox style for preview)
           const scale = Math.min(outputWidth / img.width, outputHeight / img.height)
           const drawWidth = img.width * scale
           const drawHeight = img.height * scale
@@ -135,29 +132,17 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')!
         
-        // For both desktop and mobile: no background padding
-        // Let the canvas template handle the final layout
         if (!isMobile) {
-          // Desktop: keep original
+          // DESKTOP: Keep original image completely unchanged
           canvas.width = img.width
           canvas.height = img.height
           ctx.drawImage(img, 0, 0, img.width, img.height)
         } else {
-          // Mobile: crop to Instagram Story aspect ratio without padding
-          const outputWidth = 540   
-          const outputHeight = 960
-          
-          canvas.width = outputWidth
-          canvas.height = outputHeight
-          
-          // Smart crop for mobile (fill canvas, crop excess)
-          const scale = Math.max(outputWidth / img.width, outputHeight / img.height)
-          const drawWidth = img.width * scale
-          const drawHeight = img.height * scale
-          const drawX = (outputWidth - drawWidth) / 2
-          const drawY = (outputHeight - drawHeight) / 2
-          
-          ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
+          // MOBILE: Keep original aspect ratio, no cropping, no padding
+          // Let the template canvas handle the layout, just provide clean image
+          canvas.width = img.width
+          canvas.height = img.height
+          ctx.drawImage(img, 0, 0, img.width, img.height)
         }
         
         resolve(canvas.toDataURL('image/jpeg', 0.9))
