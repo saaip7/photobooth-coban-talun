@@ -44,7 +44,7 @@ export default function TemplateStep({
         <p className="text-gray-600">
           Template optimized untuk Instagram Story & Social Media
         </p>
-        <div className="mt-2 text-sm text-[#74A57F] font-medium">
+        <div className="mt-2 text-sm text-[#0D324A] font-medium">
           📱 Format: 1080x1920 (9:16) • Perfect for Stories!
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function TemplateStep({
           onClick={() => setActiveTab('3slot')}
           className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
             activeTab === '3slot'
-              ? 'bg-white text-[#74A57F] shadow-md'
+              ? 'bg-white text-[#0D324A] shadow-md'
               : 'text-gray-600 hover:text-gray-800'
           }`}
         >
@@ -65,7 +65,7 @@ export default function TemplateStep({
           onClick={() => setActiveTab('2slot')}
           className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
             activeTab === '2slot'
-              ? 'bg-white text-[#74A57F] shadow-md'
+              ? 'bg-white text-[#0D324A] shadow-md'
               : 'text-gray-600 hover:text-gray-800'
           }`}
         >
@@ -97,7 +97,7 @@ export default function TemplateStep({
                 key={template.id}
                 className={`p-6 cursor-pointer transition-all duration-200 rounded-2xl ${
                   selectedTemplate === template.id
-                    ? "ring-4 ring-[#74A57F] bg-white shadow-lg scale-105"
+                    ? "ring-4 ring-[#0D324A] bg-white shadow-lg scale-105"
                     : "bg-white/80 hover:bg-white hover:shadow-md hover:scale-102"
                 }`}
                 onClick={() => handleTemplateSelect(template.id)}
@@ -108,7 +108,7 @@ export default function TemplateStep({
                   </h3>
                   
                   {selectedTemplate === template.id ? (
-                    <div className="flex items-center justify-center text-[#74A57F] text-sm font-medium">
+                    <div className="flex items-center justify-center text-[#0D324A] text-sm font-medium">
                       <Check className="w-5 h-5 mr-2" />
                       Template Terpilih
                     </div>
@@ -145,7 +145,7 @@ export default function TemplateStep({
                 key={template.id}
                 className={`p-6 cursor-pointer transition-all duration-200 rounded-2xl ${
                   selectedTemplate === template.id
-                    ? "ring-4 ring-[#74A57F] bg-white shadow-lg scale-105"
+                    ? "ring-4 ring-[#0D324A] bg-white shadow-lg scale-105"
                     : "bg-white/80 hover:bg-white hover:shadow-md hover:scale-102"
                 }`}
                 onClick={() => handleTemplateSelect(template.id)}
@@ -156,7 +156,7 @@ export default function TemplateStep({
                   </h3>
                   
                   {selectedTemplate === template.id ? (
-                    <div className="flex items-center justify-center text-[#74A57F] text-sm font-medium">
+                    <div className="flex items-center justify-center text-[#0D324A] text-sm font-medium">
                       <Check className="w-5 h-5 mr-2" />
                       Template Terpilih
                     </div>
@@ -173,8 +173,8 @@ export default function TemplateStep({
       </div>
 
       {selectedTemplate && (
-        <div className="mt-6 p-4 bg-green-50 rounded-2xl border border-green-200">
-          <div className="flex items-center text-green-700">
+        <div className="mt-6 p-4 bg-blue-50 rounded-2xl border border-blue-200">
+          <div className="flex items-center text-blue-700">
             <Check className="w-5 h-5 mr-2" />
             <span className="font-medium">
               Template &quot;{templates.find(t => t.id === selectedTemplate)?.title}&quot; terpilih!

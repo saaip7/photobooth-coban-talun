@@ -247,7 +247,7 @@ export default function PhotoUpload({ uploadedPhotos, setUploadedPhotos }: Photo
               <button
                 onClick={capturePhoto}
                 disabled={uploadedPhotos.length >= 3 || !isVideoReady}
-                className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-xl py-3 font-semibold transition-all duration-200"
+                className="w-full bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 text-white rounded-xl py-3 font-semibold transition-all duration-200"
               >
                 {uploadedPhotos.length >= 3 ? 'Maksimal 3 foto' : 
                  !isVideoReady ? 'Menunggu kamera...' : 'Ambil Foto'}
@@ -260,7 +260,7 @@ export default function PhotoUpload({ uploadedPhotos, setUploadedPhotos }: Photo
           <button
             onClick={openCamera}
             disabled={uploadedPhotos.length >= 3}
-            className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-4 text-center transition-all duration-200 shadow-md hover:shadow-lg"
+            className="bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-4 text-center transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <Camera className="w-6 h-6 mx-auto mb-2" />
             <span className="text-sm font-semibold">Ambil Foto</span>
@@ -276,7 +276,7 @@ export default function PhotoUpload({ uploadedPhotos, setUploadedPhotos }: Photo
               className="hidden"
               disabled={uploadedPhotos.length >= 3}
             />
-            <div className={`bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl p-4 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
+            <div className={`bg-[#0D324A] hover:bg-[#1A4A67] text-white rounded-2xl p-4 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
               uploadedPhotos.length >= 3 ? 'bg-gray-300 hover:bg-gray-300' : ''
             }`}>
               <ImageIcon className="w-6 h-6 mx-auto mb-2" />

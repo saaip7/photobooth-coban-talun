@@ -73,7 +73,7 @@ export default function PreviewDownload({ selectedTemplate, uploadedPhotos }: Pr
                 {isGenerating && (
                   <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-xl">
                     <div className="text-center">
-                      <RefreshCw className="w-8 h-8 text-[#74A57F] animate-spin mx-auto mb-2" />
+                      <RefreshCw className="w-8 h-8 text-[#0D324A] animate-spin mx-auto mb-2" />
                       <p className="text-sm text-gray-600">Membuat preview...</p>
                     </div>
                   </div>
@@ -125,7 +125,7 @@ export default function PreviewDownload({ selectedTemplate, uploadedPhotos }: Pr
           onClick={handleDownload}
           size="lg"
           disabled={!previewReady || isDownloading || isGenerating}
-          className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl py-4 text-lg font-semibold shadow-lg transition-all duration-200"
+          className="w-full bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl py-4 text-lg font-semibold shadow-lg transition-all duration-200"
         >
           {isDownloading ? (
             <>

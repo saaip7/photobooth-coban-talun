@@ -200,7 +200,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
             {/* Live Photobooth Mode */}
             <button
               onClick={() => setPhotoMode("live-booth")}
-              className="bg-gradient-to-r from-[#74A57F] to-[#5d8a68] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
+              className="bg-gradient-to-r from-[#0D324A] to-[#1A4A67] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
             >
               <div className="flex items-center justify-center mb-3">
                 <Timer className="w-8 h-8 mr-2" />
@@ -214,7 +214,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
             {/* Upload from Gallery */}
             <button
               onClick={() => setPhotoMode("upload")}
-              className="bg-white border-2 border-[#74A57F] text-[#74A57F] rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:bg-[#74A57F] hover:text-white"
+              className="bg-white border-2 border-[#0D324A] text-[#0D324A] rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:bg-[#0D324A] hover:text-white"
             >
               <Upload className="w-8 h-8 mx-auto mb-3" />
               <h4 className="font-bold text-lg mb-2">📱 Upload dari Galeri</h4>
@@ -224,7 +224,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
             {/* Manual Camera - COMMENTED OUT */}
             {/* <button
               onClick={() => setPhotoMode("camera")}
-              className="bg-white border-2 border-gray-300 text-gray-700 rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:border-[#74A57F] hover:text-[#74A57F]"
+              className="bg-white border-2 border-gray-300 text-gray-700 rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg hover:border-[#0D324A] hover:text-[#0D324A]"
             >
               <Camera className="w-8 h-8 mx-auto mb-3" />
               <h4 className="font-bold text-lg mb-2">📸 Kamera Manual</h4>
@@ -243,7 +243,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-[#74A57F] h-2 rounded-full transition-all duration-300"
+              className="bg-[#0D324A] h-2 rounded-full transition-all duration-300"
               style={{ width: `${(uploadedPhotos.length / templateInfo.maxPhotos) * 100}%` }}
             />
           </div>
@@ -251,7 +251,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
           {photoMode !== "select" && (
             <button
               onClick={() => setPhotoMode("select")}
-              className="mt-3 text-sm text-[#74A57F] hover:text-[#5d8a68] font-medium"
+              className="mt-3 text-sm text-[#0D324A] hover:text-[#1A4A67] font-medium"
             >
               ← Kembali ke pilihan mode
             </button>
@@ -295,7 +295,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
             <button
               onClick={capturePhoto}
               disabled={uploadedPhotos.length >= templateInfo.maxPhotos || !isVideoReady}
-              className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-xl py-3 font-semibold transition-all duration-200"
+              className="w-full bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 text-white rounded-xl py-3 font-semibold transition-all duration-200"
             >
               {uploadedPhotos.length >= templateInfo.maxPhotos ? `Maksimal ${templateInfo.maxPhotos} foto` : 
                !isVideoReady ? 'Menunggu kamera...' : 'Ambil Foto'}
@@ -311,7 +311,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
             <button
               onClick={openCamera}
               disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
-              className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg"
+              className="w-full bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg"
             >
               <Camera className="w-8 h-8 mx-auto mb-2" />
               <span className="font-semibold">Ambil Foto</span>
@@ -329,7 +329,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
                 className="hidden"
                 disabled={uploadedPhotos.length >= templateInfo.maxPhotos}
               />
-              <div className={`w-full bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
+              <div className={`w-full bg-[#0D324A] hover:bg-[#1A4A67] text-white rounded-2xl p-6 text-center transition-all duration-200 shadow-md hover:shadow-lg ${
                 uploadedPhotos.length >= templateInfo.maxPhotos ? 'bg-gray-300 hover:bg-gray-300' : ''
               }`}>
                 <ImageIcon className="w-8 h-8 mx-auto mb-2" />
@@ -347,7 +347,7 @@ export default function PhotoStep({ selectedTemplate, uploadedPhotos, setUploade
             <h3 className="font-semibold text-[#3E3E3E]">Foto Terpilih</h3>
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className="flex items-center text-[#74A57F] text-sm font-medium"
+              className="flex items-center text-[#0D324A] text-sm font-medium"
             >
               <Eye className="w-4 h-4 mr-1" />
               {showPreview ? 'Sembunyikan' : 'Lihat Preview'}

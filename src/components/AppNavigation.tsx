@@ -46,7 +46,7 @@ export default function AppNavigation({
             {/* Progress Bar */}
             <div className="flex-1 bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-[#74A57F] h-2 rounded-full transition-all duration-500 ease-out"
+                className="bg-[#0D324A] h-2 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${getProgress()}%` }}
               />
             </div>
@@ -74,7 +74,7 @@ export default function AppNavigation({
             <Button
               onClick={onNext}
               disabled={!canGoNext}
-              className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 flex items-center space-x-2"
+              className="bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 flex items-center space-x-2"
             >
               <span>
                 {currentStep === 'template' ? 'Pilih Foto' : 

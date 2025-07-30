@@ -117,7 +117,7 @@ export const createCanvasWithTemplate = async (
       top: 1820,
       fontSize: 48,
       fontFamily: 'Arial, sans-serif',
-      fill: '#74A57F',
+      fill: '#0D324A',
       textAlign: 'center',
       originX: 'center',
       originY: 'center',

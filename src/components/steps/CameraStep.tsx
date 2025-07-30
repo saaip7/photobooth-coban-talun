@@ -282,7 +282,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                     </div>
                     <button
                       onClick={() => setShowOrientationReminder(false)}
-                      className="w-full bg-[#74A57F] text-white py-3 rounded-xl font-semibold hover:bg-[#5d8a68] transition-colors mb-3"
+                      className="w-full bg-[#0D324A] text-white py-3 rounded-xl font-semibold hover:bg-[#1A4A67] transition-colors mb-3"
                     >
                       Mengerti, Lanjutkan
                     </button>
@@ -415,7 +415,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                           }
                         }}
                         disabled={isRunning || !cameraReady}
-                        className="bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-full p-8 shadow-lg transition-all duration-200"
+                        className="bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 text-white rounded-full p-8 shadow-lg transition-all duration-200"
                       >
                         <Camera className="w-12 h-12" />
                       </button>
@@ -451,7 +451,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                           {capturedPhotos.map((photo, index) => (
                             <div
                               key={index}
-                              className="w-20 h-15 rounded overflow-hidden border-2 border-[#74A57F] shadow-md relative"
+                              className="w-20 h-15 rounded overflow-hidden border-2 border-[#0D324A] shadow-md relative"
                             >
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
@@ -459,7 +459,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                                 alt={`Foto ${index + 1}`}
                                 className="w-full h-full object-cover"
                               />
-                              <div className="absolute top-1 left-1 bg-[#74A57F] text-white text-xs px-1 py-0.5 rounded">
+                              <div className="absolute top-1 left-1 bg-[#0D324A] text-white text-xs px-1 py-0.5 rounded">
                                 {index + 1}
                               </div>
                             </div>
@@ -511,7 +511,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
           Ambil foto langsung dengan kamera • Maksimal {maxPhotos} foto
         </p>
         {capturedPhotos.length > 0 && (
-          <div className="mt-2 text-sm text-[#74A57F] font-medium">
+          <div className="mt-2 text-sm text-[#0D324A] font-medium">
             {capturedPhotos.length}/{maxPhotos} foto tersimpan ✅
           </div>
         )}
@@ -600,7 +600,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                 key={index}
                 className={`relative flex-shrink-0 w-24 h-18 rounded-md overflow-hidden border-2 transition-all ${
                   index === currentPhotoIndex 
-                    ? 'border-[#74A57F] shadow-lg scale-105' 
+                    ? 'border-[#0D324A] shadow-lg scale-105' 
                     : 'border-gray-200'
                 }`}
               >
@@ -610,7 +610,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
                   alt={`Foto ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-1 left-1 bg-[#74A57F] text-white text-xs px-1.5 py-0.5 rounded-full">
+                <div className="absolute top-1 left-1 bg-[#0D324A] text-white text-xs px-1.5 py-0.5 rounded-full">
                   {index + 1}
                 </div>
               </div>
@@ -636,7 +636,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
           <Button
             onClick={handleStartCapture}
             disabled={isRunning || !cameraReady}
-            className="w-full bg-[#74A57F] hover:bg-[#5d8a68] disabled:bg-gray-300 text-white rounded-2xl py-6 text-xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center"
+            className="w-full bg-[#0D324A] hover:bg-[#1A4A67] disabled:bg-gray-300 text-white rounded-2xl py-6 text-xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center"
           >
             <Camera className="w-6 h-6 mr-3" />
             {!cameraReady 
@@ -666,7 +666,7 @@ export default function CameraStep({ onPhotosCapture, onNext, selectedTemplate }
 
             <Button
               onClick={handleContinue}
-              className="bg-[#74A57F] hover:bg-[#5d8a68] text-white rounded-2xl py-4 text-lg font-semibold transition-all duration-200 flex items-center justify-center"
+              className="bg-[#0D324A] hover:bg-[#1A4A67] text-white rounded-2xl py-4 text-lg font-semibold transition-all duration-200 flex items-center justify-center"
             >
               Lanjut
               <ArrowRight className="w-5 h-5 ml-2" />

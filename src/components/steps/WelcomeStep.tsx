@@ -9,7 +9,7 @@ interface WelcomeStepProps {
 
 export default function WelcomeStep({ onNext }: WelcomeStepProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#74A57F] to-[#5d8a68] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0D324A] to-[#1A4A67] flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center text-white">
         {/* Logo/Icon */}
         <div className="mb-8">
@@ -56,7 +56,7 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
         <Button
           onClick={onNext}
           size="lg"
-          className="w-full bg-white text-[#74A57F] hover:bg-white/90 font-semibold text-lg py-4 rounded-2xl shadow-lg transition-all duration-200 hover:scale-105"
+          className="w-full bg-white text-[#0D324A] hover:bg-white/90 font-semibold text-lg py-4 rounded-2xl shadow-lg transition-all duration-200 hover:scale-105"
         >
           Mulai Sekarang
         </Button>

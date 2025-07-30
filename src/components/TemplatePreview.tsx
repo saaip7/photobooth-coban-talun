@@ -124,7 +124,7 @@ export default function TemplatePreview({ templateId, photos, className = "" }: 
                 className="w-full h-full object-cover"
               />
               {/* Photo number badge */}
-              <div className="absolute top-2 left-2 bg-[#74A57F] text-white text-xs px-2 py-1 rounded-full font-semibold">
+              <div className="absolute top-2 left-2 bg-[#0D324A] text-white text-xs px-2 py-1 rounded-full font-semibold">
                 {index + 1}
               </div>
             </div>
