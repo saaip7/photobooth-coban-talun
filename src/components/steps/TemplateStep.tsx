@@ -27,7 +27,7 @@ export default function TemplateStep({
     if (onNext) {
       setTimeout(() => {
         onNext()
-      }, 800) // 800ms delay to show selection feedback
+      }, 700) // 800ms delay to show selection feedback
     }
   }
 
@@ -44,9 +44,6 @@ export default function TemplateStep({
         <p className="text-gray-600">
           Template optimized untuk Instagram Story & Social Media
         </p>
-        <div className="mt-2 text-sm text-[#0D324A] font-medium">
-          📱 Format: 1080x1920 (9:16) • Perfect for Stories!
-        </div>
       </div>
 
       {/* Tab Navigation */}

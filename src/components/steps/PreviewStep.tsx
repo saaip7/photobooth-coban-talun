@@ -105,9 +105,6 @@ export default function PreviewStep({ selectedTemplate, uploadedPhotos, onReset 
         <p className="text-gray-600">
           {templateInfo.name} • {uploadedPhotos.length} foto • Instagram Story Format
         </p>
-        <div className="mt-1 text-sm text-[#0D324A] font-medium">
-          📱 1080x1920 • Perfect for Social Media Stories
-        </div>
       </div>
 
       {/* Visual Preview using TemplatePreview */}

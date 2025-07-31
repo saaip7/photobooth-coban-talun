@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Camera, Heart, Star, Users } from "lucide-react"
+import Image from "next/image"
 
 interface WelcomeStepProps {
   onNext: () => void
@@ -13,8 +14,14 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
       <div className="max-w-md w-full text-center text-white">
         {/* Logo/Icon */}
         <div className="mb-8">
-          <div className="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-            <Camera className="w-12 h-12 text-white" />
+          <div className="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm overflow-hidden">
+            <Image 
+              src="/icon coban talun.png" 
+              alt="Coban Talun Logo" 
+              width={80} 
+              height={80} 
+              className="w-16 h-16 object-contain"
+            />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Photobooth</h1>
           <h2 className="text-xl md:text-2xl font-semibold text-white/90">Coban Talun</h2>
