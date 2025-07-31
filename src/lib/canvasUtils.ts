@@ -160,12 +160,12 @@ export const addPhotosToCanvas = async (
     const slot = config.photoSlots[i];
 
     const photoPromise = loadImage(photo).then((photoImg) => {
-      // Calculate scale to fit slot while maintaining aspect ratio
+      // Calculate scale to crop/cover slot like object-cover (match preview behavior)
       const imgWidth = photoImg.width || 1;
       const imgHeight = photoImg.height || 1;
       const scaleX = slot.width / imgWidth;
       const scaleY = slot.height / imgHeight;
-      const scale = Math.min(scaleX, scaleY);
+      const scale = Math.max(scaleX, scaleY); // Use Math.max for crop behavior
 
       // Center the photo in the slot
       const scaledWidth = imgWidth * scale;
@@ -173,11 +173,21 @@ export const addPhotosToCanvas = async (
       const centerX = slot.x + (slot.width - scaledWidth) / 2;
       const centerY = slot.y + (slot.height - scaledHeight) / 2;
 
+      // Create clipping path to crop the image to slot boundaries
+      const clipPath = new fabric.Rect({
+        left: slot.x,
+        top: slot.y,
+        width: slot.width,
+        height: slot.height,
+        absolutePositioned: true,
+      });
+
       photoImg.set({
         left: centerX,
         top: centerY,
         scaleX: scale,
         scaleY: scale,
+        clipPath: clipPath, // Add clipping for crop behavior
         selectable: false,
         evented: false,
       });

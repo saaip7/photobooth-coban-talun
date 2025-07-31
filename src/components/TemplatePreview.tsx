@@ -58,14 +58,14 @@ const TEMPLATE_CONFIGS: Record<number, {
         x: 15,
         y: 20,
         width: 70,
-        height: 28,
+        height: 27.97,
         borderRadius: "0px"
       },
       {
         x: 15,
         y: 52,
         width: 70,
-        height: 28,
+        height: 27.97,
         borderRadius: "0px"
       }
     ]
