@@ -220,7 +220,7 @@ export default function PreviewStep({ selectedTemplate, uploadedPhotos, onReset 
       {/* Footer Info */}
       <div className="text-center text-sm text-gray-500 space-y-2">
         <p>✨ Perfect untuk Instagram Stories, WhatsApp Status & TikTok!</p>
-        <p>📱 Bagikan ke story kamu dan tag @cobantalun</p>
+        <p>📱 Bagikan ke story kamu dan tag @coban_talunofficial</p>
         <p className="text-xs text-[#0D324A] font-medium">#CobanTalun #PhotoboothStory #MemoriesInFrame</p>
       </div>
     </div>

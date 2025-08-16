@@ -19,18 +19,18 @@ const templates: Template[] = [
   {
     id: 1,
     title: "3 Slot Vertikal",
-    preview: "/templates/3slot-vertical.svg",
+    preview: "/templates/Template3Slot.svg",
   },
   {
     id: 2,
     title: "2 Slot Vertikal", 
-    preview: "/templates/2slot-vertical.svg",
+    preview: "/templates/Template2Slot.svg",
   },
 ]
 
 export default function CobanTalunPhotobooth() {
   // Maintenance mode state - set to true to enable maintenance mode
-  const [isMaintenanceMode, setIsMaintenanceMode] = useState(true)
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false)
   
   // Custom message - change this to whatever you want to display
   const [customMessage, setCustomMessage] = useState("Menambahkan template baru")

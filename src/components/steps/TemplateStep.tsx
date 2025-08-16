@@ -82,7 +82,7 @@ export default function TemplateStep({
             <div className="flex justify-center">
               <div className="w-48 h-80 relative">
                 <img
-                  src="/templates/3slot-vertical.svg"
+                  src="/templates/Template3Slot.svg"
                   alt="3 Slot Template Preview"
                   className="w-full h-full object-contain rounded-xl border-2 border-gray-200"
                 />
@@ -130,7 +130,7 @@ export default function TemplateStep({
             <div className="flex justify-center">
               <div className="w-48 h-80 relative">
                 <img
-                  src="/templates/2slot-vertical.svg"
+                  src="/templates/Template2Slot.svg"
                   alt="2 Slot Template Preview"
                   className="w-full h-full object-contain rounded-xl border-2 border-gray-200"
                 />

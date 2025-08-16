@@ -4,21 +4,21 @@ import { fabric } from 'fabric';
 export const TEMPLATE_CONFIGS = {
   1: { // 3 Slot Vertical (Story Format)
     name: '3 Slot Vertikal',
-    background: '/templates/3slot-vertical.svg',
+    background: '/templates/Template3Slot.svg',
     photoSlots: [
-      { x: 162, y: 288, width: 756, height: 422 },   // Slot 1 - Top
-      { x: 162, y: 748, width: 756, height: 422 },   // Slot 2 - Middle  
-      { x: 162, y: 1210, width: 756, height: 422 },  // Slot 3 - Bottom
+      { x: 117, y: 187, width: 846, height: 472 },   // Slot 1 - Top
+      { x: 117, y: 724, width: 846, height: 472 },   // Slot 2 - Middle
+      { x: 117, y: 1261, width: 846, height: 472 },  // Slot 3 - Bottom
     ],
     canvasWidth: 1080,
     canvasHeight: 1920,
   },
   2: { // 2 Slot Vertical (Story Format)
     name: '2 Slot Vertikal',
-    background: '/templates/2slot-vertical.svg',
+    background: '/templates/Template2Slot.svg',
     photoSlots: [
-      { x: 162, y: 384, width: 756, height: 537 },   // Slot 1 - Top
-      { x: 162, y: 998, width: 756, height: 537 },   // Slot 2 - Bottom
+      { x: 75, y: 393, width: 931, height: 519 },   // Slot 1 - Top
+      { x: 75, y: 989, width: 931, height: 519 },   // Slot 2 - Bottom
     ],
     canvasWidth: 1080,
     canvasHeight: 1920,
