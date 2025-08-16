@@ -71,6 +71,22 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
         <p className="mt-4 text-sm text-white/70">
           Gratis • Story Format • Instant Download • Social Media Ready
         </p>
+
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t border-white/20">
+          <p className="text-xs text-white/60">
+            Kolaborasi dengan{" "}
+            <a 
+              href="https://instagram.com/lestaribumiaji" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-white font-semibold hover:text-white/80 transition-colors duration-200 underline decoration-white/40 hover:decoration-white/60"
+            >
+              Lestari Bumiaji
+            </a>
+            {" "}| KKN - PPM UGM 2025
+          </p>
+        </div>
       </div>
     </div>
   )
